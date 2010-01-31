@@ -1,0 +1,45 @@
+"Throttle":http://github.com/premasagar/throttle is a jQuery Plugin for limiting calls to a function, or an event handler, so that only a maximum number of calls can be made to that function within a set period of time.
+
+* by "Premasagar Rose":http://github.com/premasagar
+** "premasagar.com":http://premasagar.com / "dharmafly.com":http://dharmafly.com
+* "MIT license":http://opensource.org/licenses/mit-license.php
+* < 0.2KB minified and gzipped.
+
+
+h1. Methods
+
+Throttle adds two jQuery methods: @jQuery.throttle@ and @jQuery(elem).throttle@.
+
+h2. jQuery.throttle(handler, [interval], [defer])
+
+This converts a handler function, so that when the function is called, it will be throttled to the specified interval.
+
+* @handler@ is the function to be called.
+* @interval@ is the period, in milliseconds, within which the handler may be called only once (default @250@).
+* @defer@ is a boolean (default @false@), to determine whether the original handler should be called as soon as the converted handler is called (@defer === false@), or if the original handler should be called after the @interval@ period (@defer === true@).
+
+h3. Example:
+
+bc. var doStuff = $.throttle(function(){ /* do stuff */ }, 1000, true);
+$('#something').mouseover(doStuff);
+$('#somethingElse').mouseout(doStuff);
+$('#somethingMore').select(doStuff);
+// if multiple events fire within 1 second, the doStuff function will only be called once. Because 'defer' has been set to true, then the function will not fire immediately, but will wait until the 1 second has elapsed, and then it will fire.
+
+
+h2. jQuery(elem).throttle(eventType, handler, [interval], [defer])
+
+This binds a throttled handler function to an event on an element, or jQuery collection.
+
+h3. Example: Limit clicks on a button
+
+bc. $('#myButton').throttle('click', function(){doStuff();}, 2000);
+// if the button is clicked more than once, within 2 seconds, then the handler function will fire only once.
+
+
+h3. Example: Respond to the browser window resizing, in a controlled manner
+
+bc. $('window').throttle('resize', doStuff);
+// In some browsers (particularly IE6 and IE7), the window resize event fires repeatedly when the user resized the browser window. This can cause interruption to the user interface, and high memory usage. By limiting the 'doStuff' function to only firing at the default interval of 250 milliseconds, we can control the responsiveness of the application.
+
+Note that the interval times are only approximate, and are as accurate as the browser provides via a @window.setTimeout@ call.

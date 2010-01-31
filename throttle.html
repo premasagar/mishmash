@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8 />
+    <title>throttle</title>
+    <script src=http://ajax.googleapis.com/ajax/libs/jquery/1.4.0/jquery.js></script>
+    <script src=throttle.min.js></script>
+    <style>
+        /*
+        */
+    </style>
+</head>
+
+<body>
+    <h1>Throttle</h1>
+    <div class=demo>
+        <button id=btn>Click me</button>
+        <p class=desc>Button click events are throttled to a maximum of once every 2 seconds. Try clicking the button as quickly as you can. Only one click will register within a 2 second period.</p>
+        <div class=source>
+            The code: <code>$('#btn').throttle('click', fn, 2000);</code>
+        </div>
+        
+        <p class=desc>Also try resizing your browser window. The window's resize event is throttled to a maximum of once every 3 seconds. In practice, it can be useful to throttle window resizing to the default interval of 250ms, to prevent continuous firing of the resize event while manually resizing the browser.</p>
+        <div class=source>
+            The code: <code>$('window').throttle('resize', fn, 3000);</code>
+        </div>
+        <ul id=btnReport></ul>
+    </div>
+    
+    <script>
+        function timeSince(since, until){
+            return since ? ((until - since) / 1000).toFixed(1) : 0;
+        }
+    
+        // Button click
+        $('#btn').throttle('click', function(){
+            var
+                now = new Date().valueOf(),
+                prevEvent = arguments.callee.prevEvent;
+        
+            $('#btnReport').append(
+                '<li>[Button clicked] ' +
+                timeSince(prevEvent, now) +
+                ' seconds since last click</li>'
+            );
+            
+            arguments.callee.prevEvent = now;
+        }, 2000);
+        
+        
+        // Window resize
+        $(window).throttle('resize', function(){
+            var
+                now = new Date().valueOf(),
+                prevEvent = arguments.callee.prevEvent;
+            
+            $('#btnReport').append(
+                '<li>[Window resize] ' +
+                timeSince(prevEvent, now) +
+                ' seconds since last resize</li>'
+            );
+            
+            arguments.callee.prevEvent = now;
+        }, 3000);
+    </script>
+</body>
+</html>
