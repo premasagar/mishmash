@@ -1,11 +1,13 @@
+'use strict';
+
 /*!
 * Console
-**
-    Cross-browser JavaScript debug console logging
-        github.com/premasagar/console
+*   github.com/premasagar/mishmash/tree/master/console/
+*
+*//*
+    cross-browser JavaScript debug console logging
 
     by Premasagar Rose
-        premasagar.com
         dharmafly.com
 
     license:
@@ -15,14 +17,12 @@
 
 *//*
 
-    USAGE:
-    _('any', 'arbitrary number', 'of', arguments);
+    usage
+    _('any', 'arbitrary', Number, 'of', arguments);
     
     The function can easily be assigned to a different var, instead of '_'
 
 */
-
-'use strict';
 
 var _
 

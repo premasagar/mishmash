@@ -1,49 +1,28 @@
+'use strict';
+
 /*!
 * Throttle
-**
-    throttle calls to a function or event handler (jQuery plugin)
+*   github.com/premasagar/mishmash/tree/master/throttle/
+*
+*//*
+    limit calls to a function or event handler (jQuery plugin)
         github.com/premasagar/throttle
 
     by Premasagar Rose
-        premasagar.com
         dharmafly.com
 
-    license:
+    license
         opensource.org/licenses/mit-license.php
         
     v0.1
 
 *//*
-    creates methods:
+    creates methods
         jQuery.throttle(handler, [interval], [defer])
         jQuery(elem).throttle(eventType, handler, [interval], [defer])
 
 */
 
-'use strict';
-
-/*
-* Throttle
-*   github.com/premasagar/throttle
-*
-*//*
-    throttle calls to a function or event handler (jQuery plugin)
-
-    by Premasagar Rose
-        premasagar.com
-        dharmafly.com
-
-    license:
-        opensource.org/licenses/mit-license.php
-        
-    v0.1
-
-*//*
-    creates methods:
-        jQuery.throttle(handler, [interval], [defer])
-        jQuery(elem).throttle(eventType, handler, [interval], [defer])
-
-*/
 (function($){
     function throttle(handler, interval, defer){
         var context = this;

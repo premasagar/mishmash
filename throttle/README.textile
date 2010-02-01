@@ -1,4 +1,4 @@
-"Throttle":http://github.com/premasagar/throttle is a jQuery Plugin for limiting calls to a function, or an event handler, so that only a maximum number of calls can be made to that function within a set period of time.
+"Throttle":http://github.com/premasagar/mishmash/tree/master/throttle/ is a jQuery Plugin for limiting calls to a function, or an event handler, so that only a maximum number of calls can be made to that function within a set period of time.
 
 * by "Premasagar Rose":http://github.com/premasagar
 ** "premasagar.com":http://premasagar.com / "dharmafly.com":http://dharmafly.com
