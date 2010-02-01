@@ -2,6 +2,6 @@
 
 usage:
 
-bc. @_('any', 'arbitrary', Number, 'of', arguments);
+bc. _('any', 'arbitrary', Number, 'of', arguments);
     
 The function can easily be assigned to a different var, instead of '_'.
