@@ -1,6 +1,7 @@
 "Console":http://github.com/premasagar/mishmash/tree/master/console/: cross-browser JavaScript debug console logging. Pass arguments to the underscore _() function.
 
 usage:
+
 bc. @_('any', 'arbitrary', Number, 'of', arguments);
     
 The function can easily be assigned to a different var, instead of '_'.
