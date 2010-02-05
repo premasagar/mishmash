@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <title>Dataset demo</title>
+    <script src=dataset.js></script> <!-- include the dataset function in the document -->
+</head>
+
+<body>
+    <h1><a href=github.com/premasagar/mishmash/tree/master/dataset/>Dataset demo</a></h1>
+    <p>View the source to see what's going on.</p>
+    
+    <h2>The data:</h2>
+    <pre><code id=report></code></pre>
+    
+    <script
+        id = example
+        class = sqwidget
+        data-sqwidget-width = 300
+        data-sqwidget-height = 485
+        data-sqwidget-template = http://example.com/mywidget.html.js
+        data-sqwidget-version = 0.1
+        data-mywidget-foo = bar
+    ></script>
+    <!--
+        This happens to be an example of a script element that embeds a Sqwidget widget into the document:
+        http://github.com/premasagar/sqwidget
+        
+        However, the nature of the element that uses the data- attributes is irrelevant to the demo.
+    -->
+    
+    <script>
+        var
+            data = dataset(document.getElementById('example')), // get the dataset
+            reportMsg = '',
+            prop;
+            
+        for (prop in data){ // loop through each property in the dataset
+            if (data.hasOwnProperty(prop)){
+                reportMsg += '<br>' + prop + ': ' + data[prop]; // write out the report message
+            }
+        }
+        document.getElementById('report').innerHTML = reportMsg; // and add it to the page
+    </script>
+</body>
+</html>
