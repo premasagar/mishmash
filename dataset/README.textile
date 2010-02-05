@@ -1,4 +1,4 @@
-"Dataset":http://github.com/premasagar/mishmash/tree/master/dataset/: returns the @dataset@ object of an element, or a read-only object that mimics it.
+"Dataset":http://github.com/premasagar/mishmash/tree/master/dataset/ returns the @dataset@ object of an element, or a read-only object that mimics it.
 
 usage:
 
