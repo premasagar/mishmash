@@ -1,0 +1,13 @@
+"Dataset":http://github.com/premasagar/mishmash/tree/master/dataset/: returns the @dataset@ object of an element, or a read-only object that mimics it.
+
+usage:
+
+bc. dataset(elem);
+
+
+The @dataset@ object is new in HTML5. It is a hash of key-value pairs, based on those of the element's attributes whose names have the prefix @data-@.
+
+
+See also:
+* "ejohn.org/blog/html-5-data-attributes/":http://ejohn.org/blog/html-5-data-attributes/
+* "dev.w3.org/html5/spec/Overview.html#custom":http://dev.w3.org/html5/spec/Overview.html#custom
