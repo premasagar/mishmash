@@ -24,10 +24,38 @@
 
 (function($){
     function throttle(handler, interval, defer){
-        var context = this;
+        var context = this;        
         interval = interval || 250; // milliseconds
         // defer is false by default
         
+        return function(){
+            function updateTime(){
+                handler.throttle = (new Date).getTime() + interval;
+            }
+            function callHandler(){
+                handler.call(context);
+                updateTime();
+            }
+        
+            if (!handler.throttle){
+                updateTime();
+            }
+            else if ((new Date).getTime() < handler.throttle){
+                return context;
+            }
+            
+            if (!defer){
+                callHandler();
+            }
+            else {
+                window.setTimeout(function(){
+                    callHandler()
+                }, interval);
+            }
+            return context;
+        }
+        
+        /*
         return function(){
             if (!handler.throttling){
                 handler.throttling = true;
@@ -45,6 +73,7 @@
             }
             return context;
         };
+        */
     }
 
     // jQuery.throttle
