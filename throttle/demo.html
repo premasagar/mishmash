@@ -15,12 +15,12 @@
     <h1>Throttle</h1>
     <div class=demo>
         <button id=btn>Click me</button>
-        <p class=desc>Button click events are throttled to a maximum of once every 2 seconds. Try clicking the button as quickly as you can. Only one click will register within a 2 second period.</p>
+        <p class=desc>Button clicks only trigger the handler at a maximum of once every 2 seconds. Click the button repeatedly to demonstrate this.</p>
         <div class=source>
             The code: <code>$('#btn').throttle('click', fn, 2000);</code>
         </div>
         
-        <p class=desc>Also try resizing your browser window. The window's resize event is throttled to a maximum of once every 3 seconds. In practice, it can be useful to throttle window resizing to the default interval of 250ms, to prevent continuous firing of the resize event while manually resizing the browser.</p>
+        <p class=desc>Try resizing your browser window. The window's resize event will trigger a maximum of once every 3 seconds. In practice, it is useful to throttle window resizing to around 250ms (which is the default interval), which helps prevent continuous firing of the resize event when the user drags the window to a new size.</p>
         <div class=source>
             The code: <code>$('window').throttle('resize', fn, 3000);</code>
         </div>
