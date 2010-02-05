@@ -12,18 +12,28 @@
 </head>
 
 <body>
-    <h1>Throttle</h1>
+    <h1><a href=http://github.com/premasagar/mishmash/tree/master/throttle/>Throttle</a></h1>
     <div class=demo>
+        <h2>Example 1: Button clicks</h2>
+    
         <button id=btn>Click me</button>
         <p class=desc>Button clicks only trigger the handler at a maximum of once every 2 seconds. Click the button repeatedly to demonstrate this.</p>
         <div class=source>
             The code: <code>$('#btn').throttle('click', fn, 2000);</code>
         </div>
         
+        <hr>
+        
+        <h2>Example 2: Window resizing</h2>
+        
         <p class=desc>Try resizing your browser window. The window's resize event will trigger a maximum of once every 3 seconds. In practice, it is useful to throttle window resizing to around 250ms (which is the default interval), which helps prevent continuous firing of the resize event when the user drags the window to a new size.</p>
         <div class=source>
             The code: <code>$('window').throttle('resize', fn, 3000);</code>
         </div>
+        
+        <hr>
+        
+        <h2>The results</h2>
         <ul id=btnReport></ul>
     </div>
     
