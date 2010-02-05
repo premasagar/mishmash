@@ -6,7 +6,6 @@
 *
 *//*
     limit calls to a function or event handler (jQuery plugin)
-        github.com/premasagar/throttle
 
     by Premasagar Rose
         dharmafly.com
