@@ -33,7 +33,6 @@ function atomdate(d){
         
         // Date object (or object with the same API as Date)
         (function toAtomdate(date){
-        _(date.getDate(), date);
             return date.getFullYear() + '-' + (date.getMonth() + 1) + '-'  + date.getDate() + 'z';
         }(d));
 }
