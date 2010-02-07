@@ -1,4 +1,4 @@
-"Atomdate":http://github.com/premasagar/mishmash/tree/master/atomdate/ convert an "Atom date" string to native JavaScript Date object instance, and vice versa. This is a subset of "ISO 8601":http://microformats.org/wiki/iso-8601, which is used to format dates in "Atom feeds":http://atomenabled.org and "microformats":http://microformats.org such as "hAtom":http://microformats.org/wiki/hatom, "hCalendar":http://microformats.org/wiki/hcalendar, "hCard":http://microformats.org/wiki/hcard and "hReview":http://microformats.org/wiki/hreview.
+"Atomdate":http://github.com/premasagar/mishmash/tree/master/atomdate/ converts an Atom date string to native JavaScript Date object instance, and vice versa. This is a subset of "ISO 8601":http://microformats.org/wiki/iso-8601, which is used to format dates in "Atom feeds":http://atomenabled.org and "microformats":http://microformats.org such as "hAtom":http://microformats.org/wiki/hatom, "hCalendar":http://microformats.org/wiki/hcalendar, "hCard":http://microformats.org/wiki/hcard and "hReview":http://microformats.org/wiki/hreview.
 
 h1. string -> date
 
