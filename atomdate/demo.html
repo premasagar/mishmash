@@ -13,12 +13,12 @@
     <script>
         var
             _ = console && console.log ? console.log : function(){},
-            example = '2009-08-01T23:39:30z',
-            date = atomdate(example),
-            timestamp = date.valueOf(),
-            newatomdate = atomdate(date),
-            newdate = new Date(timestamp)
-            newtimestamp = newdate.valueOf();
+            example = '2009-08-01T23:39:30z',   // string
+            date = atomdate(example),           // Date instance
+            timestamp = date.valueOf(),         // number
+            newatomdate = atomdate(date),       // string
+            newdate = new Date(timestamp),      // Date instance
+            newtimestamp = newdate.valueOf();   // number
         
         _('input', example);
         _('fromAtomDate', date);
