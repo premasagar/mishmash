@@ -2,13 +2,14 @@
 function atomdate(d){
     return typeof d === 'string' ?
         // Convert Atomdate string to native Date object
+        // TODO: Make this more forgiving - e.g. without seconds, minutes, hours, date, or month
         (function fromAtomdate(atomdate){
 	        var d, n, plusminus;
 	
 	        // Convert 'Z' UTC to '+00:00' and split to array
 	        atomdate = atomdate.replace(/z$/i, '+00:00');
-	        d = atomdate.split(/[\-T:+]/);  // TODO: Confirm this is fine in IE6
-	        n = Number;
+	        d = atomdate.split(/[\-T:+]/);
+	        n = Number; // NOTE: Number casting required for older Opera browsers
 		
 	        if (d.length !== 8){
 		        return false;
@@ -31,8 +32,22 @@ function atomdate(d){
         :
         
         // Date object (or object with the same API as Date)
-        // TODO: respond to timezones; add time string
         (function toAtomdate(date){
-            return date.getFullYear() + '-' + (date.getMonth() + 1) + '-'  + date.getDate() + 'z';
+            function leadingZeroes(num){
+				var len = String(num).length;
+				if (len > 2){
+				    return num;
+				}
+				return len === 2 ? num : '0' + num;
+			}
+			var timezone = -atomdate('2009-08-02T00:39:00z').getTimezoneOffset() / 60;
+			if (!timezone){
+			    timezone = 'z';
+			}
+			else {
+			    timezone = (timezone > 0 ? '+' : '-') + leadingZeroes(Math.abs(timezone)) + ':00'; // TODO: accept part-hours
+			}
+        
+            return date.getFullYear() + '-' + leadingZeroes(date.getMonth() + 1) + '-'  + leadingZeroes(date.getDate()) + 'T' + leadingZeroes(date.getHours()) + ':' + leadingZeroes(date.getMinutes()) + ':' + leadingZeroes(date.getSeconds()) + timezone;
         }(d));
 }
