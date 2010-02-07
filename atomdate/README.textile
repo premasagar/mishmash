@@ -3,12 +3,12 @@
 h1. string -> date
 
 bc. atomdate('2007-10-29T23:39:38+06:00');
-// returns native Date object
+// returns a native Date object
 
 h1. date -> string
 
 bc. atomdate(new Date);
-// returns Atom date string
+// returns a Atom date string, e.g. '2010-02-07T20:40:36z'
 
 
 h1. limitations
@@ -19,3 +19,4 @@ When converting an Atom date string to a Date object, the timezone of the Atom s
 
 h1. see also
 * "Microformats datetime design pattern":http://microformats.org/wiki/datetime-design-pattern
+* "Summary of the international standard date & time notation":http://www.cl.cam.ac.uk/~mgk25/iso-time.html
