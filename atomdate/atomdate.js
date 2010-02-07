@@ -5,7 +5,7 @@
 *   github.com/premasagar/mishmash/tree/master/atomdate/
 *
 *//*
-    convert Atom date string to native JavaScript Date object instance, and vice versa
+    converts Atom date string to native JavaScript Date object instance, and vice versa
 
     by Premasagar Rose
         dharmafly.com
