@@ -40,7 +40,7 @@ function atomdate(d){
 				}
 				return len === 2 ? num : '0' + num;
 			}
-			var timezone = -atomdate('2009-08-02T00:39:00z').getTimezoneOffset() / 60;
+			var timezone = -date.getTimezoneOffset() / 60;
 			if (!timezone){
 			    timezone = 'z';
 			}
