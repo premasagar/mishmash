@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <title>Atomdate demo</title>
+    <script src=atomdate.js></script>
+</head>
+
+<body>
+    <h1><a href=github.com/premasagar/mishmash/tree/master/atomdate/>Atomdate demo</a></h1>
+    <p>See console</p>
+    
+    <script>
+        var
+            _ = console && console.log ? console.log : function(){},
+            example = '2009-08-01T23:39:30z',
+            date = atomdate(example),
+            timestamp = date.valueOf(),
+            newatomdate = atomdate(date),
+            newdate = new Date(timestamp)
+            newtimestamp = newdate.valueOf();
+        
+        _(example);
+        _(date);
+        _(timestamp);
+        _(newatomdate);
+        _(newdate);
+        _(newtimestamp);
+    </script>
+</body>
+</html>
