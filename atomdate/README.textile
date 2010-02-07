@@ -1,13 +1,11 @@
 "Atomdate":http://github.com/premasagar/mishmash/tree/master/atomdate/ convert an "Atom date" string to native JavaScript Date object instance, and vice versa. This is a subset of "ISO 8601":http://microformats.org/wiki/iso-8601, which is used to format dates in "Atom feeds":http://atomenabled.org and "microformats":http://microformats.org such as "hAtom":http://microformats.org/wiki/hatom, "hCalendar":http://microformats.org/wiki/hcalendar, "hCard":http://microformats.org/wiki/hcard and "hReview":http://microformats.org/wiki/hreview.
 
-h1. usage
-
-h2. string -> date
+h1. string -> date
 
 bc. atomdate('2007-10-29T23:39:38+06:00');
 // returns native Date object
 
-h2. date -> string
+h1. date -> string
 
 bc. atomdate(new Date);
 // returns Atom date string
