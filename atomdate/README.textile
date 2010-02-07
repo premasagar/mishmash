@@ -1,16 +1,19 @@
-"Atomdate":http://github.com/premasagar/mishmash/tree/master/atomdate/ convert an "Atom date" string to native JavaScript Date object instance, and vice versa. This is the subset of "ISO 8601":http://microformats.org/wiki/iso-8601, which is used to format dates in "Atom feeds":http://atomenabled.org and "microformats":http://microformats.org such as "hAtom":http://microformats.org/wiki/hatom and "hCalendar":http://microformats.org/wiki/hcalendar.
+"Atomdate":http://github.com/premasagar/mishmash/tree/master/atomdate/ convert an "Atom date" string to native JavaScript Date object instance, and vice versa. This is a subset of "ISO 8601":http://microformats.org/wiki/iso-8601, which is used to format dates in "Atom feeds":http://atomenabled.org and "microformats":http://microformats.org such as "hAtom":http://microformats.org/wiki/hatom, "hCalendar":http://microformats.org/wiki/hcalendar, "hCard":http://microformats.org/wiki/hcard and "hReview":http://microformats.org/wiki/hreview.
 
-usage:
+h1. usage:
 
-bc. atomdate('2007-10-29T23:39:38+06:00'); // returns native Date object
-    atomdate(new Date); // returns Atom date string
+bc. atomdate('2007-10-29T23:39:38+06:00');
+// returns native Date object
+// **
+atomdate(new Date);
+// returns Atom date string
 
 
-limitations:
+h1. limitations:
 
 Currently, when passing an Atom string, it must include full time information - i.e. YYYY-MM-DDTHH:MM:SS+Z - this restriction should be relaxed in future.
         
 When converting an Atom date string to a Date object, the timezone of the Atom string will automatically be converted to the user's locale - this is a limitation of the native Date object.
 
-see also:
-* http://microformats.org/wiki/datetime-design-pattern
+h1. see also:
+* "Microformats datetime design pattern":http://microformats.org/wiki/datetime-design-pattern
