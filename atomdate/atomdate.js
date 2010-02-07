@@ -1,5 +1,4 @@
 // Parse an atom date string and return as a JS Date object. E.g. '2007-10-29+ '-' T23:39:38+06:00'
-// TODO: Detect if arg is Date obj, and return as Atom date string
 function atomdate(d){
     return typeof d === 'string' ?
         // Convert Atomdate string to native Date object
@@ -32,6 +31,7 @@ function atomdate(d){
         :
         
         // Date object (or object with the same API as Date)
+        // TODO: respond to timezones; add time string
         (function toAtomdate(date){
             return date.getFullYear() + '-' + (date.getMonth() + 1) + '-'  + date.getDate() + 'z';
         }(d));
