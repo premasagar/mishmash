@@ -13,7 +13,7 @@ bc. atomdate(new Date);
 
 h1. limitations
 
-Currently, when passing an Atom string, it must include full time information - i.e. YYYY-MM-DDTHH:MM:SS+Z - this restriction should be relaxed in future.
+Currently, when passing an Atom string, it must include full time information - i.e. YYYY-MM-DDTHH:MM:SS+Z - this restriction should be relaxed in future, to allow the passing of partial dates, e.g. without the time, or without the date or month.
         
 When converting an Atom date string to a Date object, the timezone of the Atom string will automatically be converted to the user's locale - this is a limitation of the native Date object.
 
