@@ -1,0 +1,4 @@
+"Ready":http://github.com/premasagar/mishmash/tree/master/ready/ is a onDocumentReady abstraction
+
+* adapted from jQuery 1.4 by "James Padolsey":http://james.padolsey.com
+* "MIT license":http://opensource.org/licenses/mit-license.php
