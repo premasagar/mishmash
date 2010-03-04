@@ -24,26 +24,30 @@
 
 (function($){
     function throttle(handler, interval, defer){
-        var context = this;        
+        var
+            context = this,
+            limitOn; // falsey
+            
         interval = interval || 250; // milliseconds
-        // defer is false by default
+        // defer is falsey by default
         
         return function(){
-            if (!handler.throttling){
-                handler.throttling = true;
+            if (!limitOn){
+                limitOn = true;
                 
                 window.setTimeout(function(){
                     if (defer){
                         handler.call(context);
                     }                            
-                    handler.throttling = false;
+                    limitOn = false;
                 }, interval);
                 
                 if (!defer){
                     handler.call(context);
+                    return true;
                 }
             }
-            return context;
+            return !limitOn;
         };
     }
 
