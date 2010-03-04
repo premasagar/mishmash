@@ -14,10 +14,7 @@
 
 */
 
-var ready = (function(){
-	// onDocumentReady abstraction
-	// adapted from jQuery 1.4
-	
+function ready(){	
 	var doc = document,
 		docEl = doc.documentElement,
 		addEventListener = doc.addEventListener,
@@ -106,6 +103,6 @@ var ready = (function(){
 	
 	return onReady;
 	
-}());
+}
 
 /*jslint browser: true, devel: true, onevar: true, undef: true, eqeqeq: true, bitwise: true, regexp: true, strict: true, newcap: true, immed: true */
