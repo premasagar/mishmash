@@ -100,6 +100,10 @@
             border-bottom-style:solid;
             padding-bottom:1.62em;
         }
+        #elem pre:last-child {
+            border-bottom-style:none;
+            padding-bottom:0;
+        }
         
         #elem code.background-color {
             color:black;
@@ -156,7 +160,10 @@
     elem.cssText = <code id=var-cssText></code>;
 
     window.getComputedStyle(elem, null).backgroundColor = <code id=var-computedStyle-background-color class=background-color></code>;
-    window.getComputedStyle(elem, null).color = <code id=var-computedStyle-color class=color></code>;    
+    window.getComputedStyle(elem, null).color = <code id=var-computedStyle-color class=color></code>;
+
+    elem.currentStyle.backgroundColor = <code id=var-currentStyle-background-color class=background-color></code>;
+    elem.currentStyle.color = <code id=var-currentStyle-color class=color></code>;
 &lt;/script&gt;
 </code></pre>
 
@@ -186,11 +193,18 @@
         elemjQueryCssBg = elem.css('background-color') || '',
         elemjQueryCssColor = elem.css('color') || '',
         
-        elemStyleBg = elem[0].style.backgroundColor || '',
-        elemStyleColor = elem[0].style.color || '',
+        elemStyle = elem[0].style,
+        elemStyleBg = elemStyle.backgroundColor || '',
+        elemStyleColor = elemStyle.color || '',
         
-        elemComputedStyleBg = window.getComputedStyle(elem[0], null).backgroundColor,
-        elemComputedStyleColor = window.getComputedStyle(elem[0], null).color,
+        computedStyle = window.getComputedStyle,
+        elemComputedStyleBg = computedStyle ? computedStyle(elem[0], null).backgroundColor : '',
+        elemComputedStyleColor = computedStyle ? computedStyle(elem[0], null).color : '',
+        
+        currentStyle = elem[0].currentStyle,
+        elemCurrentStyleBg = currentStyle ? currentStyle.backgroundColor : '',
+        elemCurrentStyleColor = currentStyle ? currentStyle.color : '',
+        
         
         // colour it like it says
         colorMe = function(cssText){
@@ -231,6 +245,15 @@
             $('#var-computedStyle-color')
                 .text(elemComputedStyleColor)
                 .css('color', elemStyleColor);
+                
+            $('#var-currentStyle-background-color')
+                .text(elemCurrentStyleBg)
+                .css('background-color', elemCurrentStyleBg);
+                
+            $('#var-currentStyle-color')
+                .text(elemCurrentStyleColor)
+                .css('color', elemCurrentStyleColor);
+                
         },
         tests = [
             {
