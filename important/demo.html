@@ -326,6 +326,20 @@
                 desc:"Make all the css properties in the element's style attribute not use the !important statement."
             },
             {
+                text:'$(styleElem).important();',
+                fn:function(){
+                    $(styleElem).important();
+                },
+                desc:""
+            },
+            {
+                text:'$(styleElem).important(false);',
+                fn:function(){
+                    $(styleElem).important(false);
+                },
+                desc:""
+            },
+            {
                 text:"$(elem).important('background-color');",
                 fn:function(){
                     $(elem).important('background-color');
@@ -340,6 +354,13 @@
                 desc:"Make the background-color property in the element's style attribute not use the !important statement."
             },
             {
+                text:"$(elem).important({'background-color':'darkgreen', color:'lightblue'});",
+                fn:function(){
+                    $(elem).important({'background-color':'darkgreen', color:'lightblue'});
+                },
+                desc:""
+            },
+            {
                 text:"$(elem).css({'background-color':'darkorange', color:'green'}, true);",
                 fn:function(){
                     $(elem).css({'background-color':'darkorange', color:'green'}, true);
@@ -350,27 +371,6 @@
                 text:"$(elem).css('background-color', 'gray');",
                 fn:function(){
                     $(elem).css('background-color', 'gray');
-                },
-                desc:""
-            },
-            {
-                text:"$(elem).important({'background-color':'darkgreen', color:'lightblue'});",
-                fn:function(){
-                    $(elem).important({'background-color':'darkgreen', color:'lightblue'});
-                },
-                desc:""
-            },
-            {
-                text:'$(styleElem).important();',
-                fn:function(){
-                    $(styleElem).important();
-                },
-                desc:""
-            },
-            {
-                text:'$(styleElem).important(false);',
-                fn:function(){
-                    $(styleElem).important(false);
                 },
                 desc:""
             },
