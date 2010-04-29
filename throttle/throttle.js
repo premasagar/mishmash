@@ -1,7 +1,7 @@
 'use strict';
 
 /*!
-* Limit: Throttle
+* Throttle
 *   github.com/premasagar/mishmash/tree/master/throttle/
 *
 *//*
