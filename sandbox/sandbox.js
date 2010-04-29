@@ -17,13 +17,13 @@
 
 */
 
-(function(){
+var Sandbox = (function(){
     var
         window = this,
         document = window.document;
 
     function isArray(obj){
-		return window.toString.call(obj) === "[object Array]" || obj.constructor === Array || obj instanceof Array;
+		return toString.call(obj) === "[object Array]" || obj.constructor === Array || obj instanceof Array;
 	}
 
     function hostBody(){
@@ -193,5 +193,5 @@
         }
     };
 
-    window.Sandbox = Sandbox;
+    return Sandbox;
 }());
