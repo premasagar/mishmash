@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8 />
+    <title>sandbox</title>
+    <script src="../../jquery.js"></script>
+    <script src="../../console/console.js"></script> <!-- for debugging only -->
+    
+    <script src="../sandbox.js"></script>
+    <style>
+        /*
+        */
+    </style>
+</head>
+
+<body>
+    <h1><a href="http://github.com/premasagar/mishmash/tree/master/sandbox/">Sandbox</a></h1>
+    <div class=demo>
+        
+    </div>
+    
+    <script>
+        var sandy = new Sandbox(
+            // url or array of urls for scripts to load in the sandbox
+            'http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js',
+
+            // property or array of properties to retrieve from the window object
+            'jQuery',
+            
+            function(jQuery){
+                _('sandboxed jQuery has version: ', jQuery.fn.jquery);
+            }
+        );
+    </script>
+</body>
+</html>
