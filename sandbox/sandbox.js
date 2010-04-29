@@ -5,7 +5,7 @@
 *   github.com/premasagar/mishmash/tree/master/sandbox/
 *
 *//*
-    sandbox JavaScript variables, by injecting scripts into a throwaway iframe element
+    Load and isolate JavaScript variables, by injecting scripts into a temporary iframe element.
 
     by Premasagar Rose
         dharmafly.com
@@ -17,7 +17,7 @@
 
 */
 
-var Sandbox = (function(){
+this.sandbox = (function(){
     var
         window = this,
         document = window.document;
@@ -29,6 +29,119 @@ var Sandbox = (function(){
     function hostBody(){
         return document.getElementsByTagName('body')[0];
     }
+
+    // **
+
+    /*
+    *   getScript
+    */
+    function getScript(src, callback, arg3, arg4){    
+        /**
+         * Load a script into a <script> element
+         * @param {String} src The source url for the script to load
+         * @param {Function} callback Called when the script has loaded
+         * TODO: 
+         * 1) Look in DOM for script element with that src already, and don't load it 
+         *    again if found (allows multiple Sqwidget scripts not to keep loading jQuery, etc)
+         * 2) {url: src, callback: fn} objects to allow specific callbacks for particular scripts; 
+         * 3) {lookForScriptSrcInDOM:false} options object; 
+         * 4) callback function when all scripts loaded
+         */
+        function getSingleScript(src, callback, targetWindow){
+            var
+                self = this,
+                document = (targetWindow || window).document,
+                head = document.getElementsByTagName('head')[0],
+                script = document.createElement('script'),
+                loaded;
+            
+            callback = callback || function(){};
+            script.src = src;
+            script.onload = script.onreadystatechange = function(){
+                var state = this.readyState;
+                if (!loaded && (!state || state === 'complete' || state === 'loaded')){
+                    // Handle memory leak in IE
+                    script.onload = script.onreadystatechange = null;
+                    // head.removeChild(script); // Worth removing script element once loaded?
+                    
+                    loaded = true;
+                    callback.call(self);
+                }
+            };
+            head.appendChild(script);
+        }
+
+        // **
+
+        /**
+         * Load array of scripts into script elements.  
+         *
+         * Note, there is only one callback function here, called after each is loaded
+         *
+         * @param {Array} srcs array of source files to load
+         * @param {Function} callback 
+         * @param {Boolean} inOrder - if true, load scripts in given order
+         */
+
+        function getMultipleScripts(srcs, callback, inOrder, targetWindow){
+			var
+                self = this,
+                args = arguments,
+			    length = srcs.length,
+				loaded = 0,
+				checkIfComplete;
+
+	        callback = callback || function(){};
+	        if (!targetWindow){
+	            if (typeof args[args.length-1] === 'object'){
+	                targetWindow = args[args.length-1];
+	            }
+	            else {
+                    targetWindow = window;
+	            }
+	        }
+			
+			if (inOrder === true) {
+				// Recursive, each callback re-calls getScripts
+				// with a shifted array.
+				getSingleScript(srcs.shift(), function(){
+					if (length === 1){
+						callback.call(self);
+					}
+					else {
+					    // preserve inOrder when recursing
+						getMultipleScripts(srcs, callback, true);
+					}
+				}, targetWindow);
+			}
+			else {
+				// Plain old loop
+                checkIfComplete = function(){
+					if (++loaded === length){
+						callback.call(self);
+					}
+				};
+				
+				// Doesn't call callback until all scripts have loaded.
+				for (var i = 0; i < length; ++i){
+					getSingleScript(srcs[i], checkIfComplete, targetWindow);
+				}
+			}			
+		}
+
+		// **
+
+		var method = typeof src === 'string' ?
+                getSingleScript :
+                getMultipleScripts;
+        return method.apply(this, arguments);
+    }
+    /*
+    * end getScript
+    *
+    **/
+
+    // **
 
     function Sandbox(){
         this.init.apply(this, arguments);
@@ -79,12 +192,8 @@ var Sandbox = (function(){
 
             
             if (isArray(script)){
-                this.getScripts(script, outerCallback);
+                getScript(script, outerCallback, this.window());
             }
-        },
-
-        doctype: function(){
-            return '<!doctype html>';
         },
     
         window: function(){
@@ -99,8 +208,8 @@ var Sandbox = (function(){
             var doc = this.document();
             doc.open();
             doc.write(
-                this.doctype() + '\n' +
-                '<head></head><body></body>'                    
+                '<!doctype html>' + '\n' +
+                '<html><head></head><body></body></html>'
             );
             doc.close();
             return this;
@@ -108,90 +217,10 @@ var Sandbox = (function(){
 
         remove: function(){
             hostBody().removeChild(this.iframe);
-        },
-    
-        /**
-         * Load array of scripts into script elements.  
-         *
-         * Note, there is only one callback function here, called after each is loaded
-         *
-         * @param {Array} srcs array of source files to load
-         * @param {Function} callback 
-         * @param {Boolean} inOrder - if true, load scripts in given order
-         */
- 
-        getScripts: function(srcs, callback, inOrder){
-			var
-                self = this,
-			    length = srcs.length,
-				loaded = 0,
-				checkIfComplete;
-
-	        callback = callback || function(){};
-			
-			if (inOrder) {
-				// Recursive, each callback re-calls getScripts
-				// with a shifted array.
-				this.getScript(srcs.shift(), function(){
-					if (length === 1){
-						callback.call(self);
-					}
-					else {
-					    // preserve inOrder when recursing
-						this.getScripts(srcs, callback, true);
-					}
-				});
-			}
-			else {
-				// Plain old loop
-                checkIfComplete = function(){
-					if (++loaded === length){
-						callback.call(self);
-					}
-				};
-				
-				// Doesn't call callback until all scripts have loaded.
-				for (var i = 0; i < length; ++i){
-					this.getScript(srcs[i], checkIfComplete);
-				}
-			}			
-		},
-		
-        /**
-         * Load a script into a <script> element
-         * @param {String} src The source url for the script to load
-         * @param {Function} callback Called when the script has loaded
-         * TODO: 
-         * 1) Look in DOM for script element with that src already, and don't load it 
-         *    again if found (allows multiple Sqwidget scripts not to keep loading jQuery, etc)
-         * 2) {url: src, callback: fn} objects to allow specific callbacks for particular scripts; 
-         * 3) {lookForScriptSrcInDOM:false} options object; 
-         * 4) callback function when all scripts loaded
-         */
-        getScript: function(src, callback){
-            var
-                self = this,
-                document = this.document(),
-                head = document.getElementsByTagName('head')[0],
-                script = document.createElement('script'),
-                loaded;
-            
-            callback = callback || function(){};
-            script.src = src;
-            script.onload = script.onreadystatechange = function(){
-                var state = this.readyState;
-                if (!loaded && (!state || state === 'complete' || state === 'loaded')){
-                    // Handle memory leak in IE
-                    script.onload = script.onreadystatechange = null;
-                    // head.removeChild(script); // Worth removing script element once loaded?
-                    
-                    loaded = true;
-                    callback.call(self);
-                }
-            };
-            head.appendChild(script);
         }
     };
 
-    return Sandbox;
+    return function(script, props, callback){
+        return new Sandbox(script, props, callback);
+    };
 }());
