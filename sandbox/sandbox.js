@@ -126,28 +126,32 @@
 			    length = srcs.length,
 				loaded = 0,
 				checkIfComplete;
+
+	        callback = callback || function(){};
 			
 			if (inOrder) {
 				// Recursive, each callback re-calls getScripts
 				// with a shifted array.
-				this.getScript(srcs.shift(), function() {
-					if (length === 1) {
+				this.getScript(srcs.shift(), function(){
+					if (length === 1){
 						callback.call(self);
-					} else {
+					}
+					else {
 					    // preserve inOrder when recursing
 						this.getScripts(srcs, callback, true);
 					}
 				});
-			} else {
+			}
+			else {
 				// Plain old loop
                 checkIfComplete = function(){
-					if (++loaded === length) {
+					if (++loaded === length){
 						callback.call(self);
 					}
 				};
 				
 				// Doesn't call callback until all scripts have loaded.
-				for (var i = 0; i < length; ++i) {
+				for (var i = 0; i < length; ++i){
 					this.getScript(srcs[i], checkIfComplete);
 				}
 			}			
