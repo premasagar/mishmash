@@ -1,8 +1,8 @@
 'use strict';
 
 /*!
-* Sandbox
-*   github.com/premasagar/mishmash/tree/master/sandbox/
+* Sandie
+*   github.com/premasagar/mishmash/tree/master/sandie/
 *
 *//*
     Load and isolate JavaScript variables, by injecting scripts into a temporary iframe element.
@@ -17,7 +17,7 @@
 
 */
 
-this.sandbox = (function(){
+this.sandie = (function(){
     var
         window = this,
         document = window.document;
@@ -143,11 +143,11 @@ this.sandbox = (function(){
 
     // **
 
-    function Sandbox(){
+    function Sandie(){
         this.init.apply(this, arguments);
     }
     
-    Sandbox.prototype = {
+    Sandie.prototype = {
         init: function(script, props, callback){
             var
                 self = this,
@@ -221,6 +221,6 @@ this.sandbox = (function(){
     };
 
     return function(script, props, callback){
-        return new Sandbox(script, props, callback);
+        return new Sandie(script, props, callback);
     };
 }());
