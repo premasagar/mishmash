@@ -20,6 +20,32 @@
         jQuery.coords
         jQuery(elem).coords
         
+    examples
+        $.coords.mouse(true)        // start tracking mouse coords
+        $.coords.mouse()            // get mouse coords as [x,y]
+        $.coords.mouse('#elem')     // is mouse over #elem element?
+        $.coords.mouse(elem)        // is mouse over elem element?
+        $.coords.mouse([0,8,5,2])  // is mouse within boundary?
+        $.coords.mouse(false)       // stop tracking mouse coords
+        
+        $('#elem').coords()         // get coords of #elem element
+        $('#elem').coords('#other') // does #elem overlap #other?
+        $('#elem').coords(other)    // does #elem overlap other element?
+        $('#elem').coords([0,8,5,2])// does #elem overlap boundary?
+        
+        $.coords.elem([1,2,3,4], [5,6,7,8]) // do the two overlap?
+    
+    include margin
+        In all the above examples, the final argument can be given as boolean true, to include the elements' margins in measurements. Default is to exclude the margin (as with jQuery.offset)
+        
+    coordinates
+        a call to $(elem).coords() returns an array as [top, right, bottom, left], which means:
+        [
+            offset of top edge of element from top of document,
+            offset of right edge of element from left of document,
+            offset of bottom edge of element from top of document,
+            offset of left edge of element from left of document
+        ]
     
     requires
         jQuery 1.4x, due to use of jQuery.isPlainObject()
