@@ -22,12 +22,12 @@
         splitdoc
         
     examples
-        var html = $('html').html(); // an HTML document or fragment
-        splitdoc(html); // returns object, containing key components of the HTML document
-        splitdoc + ''; // a string version of the document; a full HTML document, whatever the input
-        String(splitdoc(html)); // same as previous example
+        var html = '<;    // an HTML document or fragment
         
-        splitdoc() + ''; // blank HTML document boilerplate
+        splitdoc(html);                 // returns object, containing key components of the HTML document
+        splitdoc(html) + '';            // a string version of the document, which is a full HTML document, no matter what the input
+        splitdoc(html).toString();      // same as previous example
+        splitdoc() + '';                // blank HTML document boilerplate
         
     notes
         The script attempts absolutely no valdation. It simply works with what it would expect from a valid document or fragment.
