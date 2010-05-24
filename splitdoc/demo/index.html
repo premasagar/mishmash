@@ -14,21 +14,23 @@
     
     <h2>Example usage</h2>
 <pre><code>
-    // a complete HTML document or fragment (string)
-    var html = '&lt;p>blah&lt;/p>';
+    // return a blank HTML document boilerplate, as an object
+    splitdoc();
+    // this returns {doctype:"&lt;!doctype html>",htmlAttr:"",headAttr:"",headContents:"&lt;meta charset=utf-8>&lt;title>&lt;/title>",charset:"utf-8",title:"",bodyAttr:"",bodyContents:""}
     
-    // returns object, containing key components of the HTML document
-    splitdoc(html);
-    
-    // a string version of the document, which is a full HTML document, no matter what the input
-    splitdoc(html) + '';
-    
-    // same as previous example
-    splitdoc(html).toString();
-    
-    // blank HTML document boilerplate
-    // returns '&lt;!doctype html>&lt;html>&lt;head>&lt;title>&lt;/title>&lt;/head>&lt;body>&lt;/body>&lt;/html>'
+    // return a blank HTML document boilerplate, as a string
     splitdoc() + '';
+    splitdoc().toString(); // this is identical to the line above
+    // this returns '&lt;!doctype html>&lt;html>&lt;head>&lt;meta charset=utf-8>&lt;title>&lt;/title>&lt;/head>&lt;body>&lt;/body>&lt;/html>'
+    
+    // Examples of HTML fragments that are converted to full HTML documents
+    splitdoc('hello world');
+    splitdoc('&lt;p>blah&lt;/p>');
+    splitdoc('&lt;body>&lt;p>blah&lt;/p>&lt;/body>');
+    splitdoc('&lt;head>&lt;body>&lt;p>blah&lt;/p>&lt;/body>&lt;/head>');
+    splitdoc('&lt;head>&lt;title>foo&lt;/title>&lt;body>&lt;p>blah&lt;/p>&lt;/body>&lt;/head>');
+    splitdoc('&lt;head>&lt;meta charset=utf-8>&lt;title>foo&lt;/title>&lt;body>&lt;p>blah&lt;/p>&lt;/body>&lt;/head>');
+    splitdoc('&lt;!doctype html>&lt;head>&lt;meta charset=utf-8>&lt;title>foo&lt;/title>&lt;body>&lt;p>blah&lt;/p>&lt;/body>&lt;/head>');
 </code></pre>
 </body>
 </html>
