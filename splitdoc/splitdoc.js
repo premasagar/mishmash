@@ -103,7 +103,7 @@ var splitdoc = (function(){
             bodyContents = trim(bodyMatch ? bodyMatch[2] : (doctypeMatch || headMatch ? '' : html));
         
         if (!titleMatch){
-            headContents = '<title></title>' + headContents;
+            headContents = '<title>' + titleDefault + '</title>' + headContents;
         }
         if (!charsetMatch){
             headContents = charsetTag + headContents;
