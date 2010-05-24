@@ -55,15 +55,13 @@ var splitdoc = (function(){
         return str.replace(/^[\0\t\n\v\f\r\s]+|[\0\t\n\v\f\r\s]+$/g, ''); // match the full set of whitespace characters
     }
     
-    function splitter(raw){
+    function Splitdoc(raw){
         var
             // cast raw to string
             html = typeof raw !== 'undefined' && raw !== null ? raw + '' : '',
         
             // default html document
             doctypeDefault = '<!doctype html>',
-            headDefault = '<head><title></title></head>',
-            bodyDefault = '<body></body>',
             
             // regular expressions to match supplied document
             doctypeRegex = /<!doctype html[^>]*>/i,
@@ -75,44 +73,35 @@ var splitdoc = (function(){
             doctypeMatch = html.match(doctypeRegex),
             htmlAttrMatch = html.match(htmlAttrRegex),
             headMatch = html.match(headRegex),
-            bodyMatch = html.match(bodyRegex),
-            
-            // construct complete component, using defaults if required
-            // NOTE: attribute values are deliberately left untrimmed
-            doctype = doctypeMatch ? doctypeMatch[0] : doctypeDefault,            
-            htmlAttr = htmlAttrMatch ? htmlAttrMatch[1] : '',
-            
-            headAttr = headMatch ? headMatch[1] : '',
-            headContents = trim(headMatch ? headMatch[2] : ''),
-            
-            bodyAttr = bodyMatch ? bodyMatch[1] : '',
-            bodyContents = trim(bodyMatch ? bodyMatch[2] : html);
-            
-            
-        // api into html document
-        // NOTE: there is redundancy here, e.g. value of 'headContents' is already contained within value of 'head'.
-        return {
-            doctype: doctype,
-            htmlAttr: htmlAttr,
-            
-            head: function(){
-                return headMatch ? headMatch[0] : headDefault.split('><').join(headAttr + '>' + headContents + '<');
-            },
-            headAttr: headAttr,
-            headContents: headContents,
-            
-            body: function(){
-                return bodyMatch ? bodyMatch[0] : bodyDefault.split('><').join(bodyAttr + '>' + bodyContents + '<');
-            },
-            bodyAttr: bodyAttr,
-            bodyContents: bodyContents,
-            
-            // enhance the object's string representation, by overriding Object prototype's toString function
-            toString: function(){
-                return doctype + '<html' + htmlAttr + '>' + this.head() + this.body() + '</html>';
-            }
-        };
+            bodyMatch = html.match(bodyRegex);
+        
+        // api into document
+        // NOTE: attributes are deliberately left untrimmed
+        this.doctype = doctypeMatch ? doctypeMatch[0] : doctypeDefault;
+        this.htmlAttr = htmlAttrMatch ? htmlAttrMatch[1] : '';
+        this.headAttr = headMatch ? headMatch[1] : '';
+        this.headContents = trim(headMatch ? headMatch[2] : '');
+        this.bodyAttr = bodyMatch ? bodyMatch[1] : '';
+        this.bodyContents = trim(bodyMatch ? bodyMatch[2] : (doctypeMatch || headMatch ? '' : html));
     }
     
-    return (exports.splitdoc = splitter);
+    // Prototype
+    Splitdoc.prototype = {
+        head: function(){
+            return '<head' + this.headAttr + '>' + this.headContents + '</head>';
+        },
+        body: function(){
+            return '<body' + this.bodyAttr + '>' + this.bodyContents + '</body>';
+        },
+        // enhance the object's string representation, by overriding Object prototype's toString function
+        toString: function(){
+            return this.doctype + '<html' + this.htmlAttr + '>' + this.head() + this.body() + '</html>';
+        }
+    };
+    
+    function splitdoc(html){
+        return new Splitdoc(html);
+    }
+    
+    return (exports.splitdoc = splitdoc);
 }());
