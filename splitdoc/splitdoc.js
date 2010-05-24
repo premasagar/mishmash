@@ -39,8 +39,13 @@
         splitdoc('<head><meta charset=utf-8><title>foo</title><body><p>blah</p></body></head>');
         splitdoc('<!doctype html><head><meta charset=utf-8><title>foo</title><body><p>blah</p></body></head>');
         
-        // Optional defaults
-        splitdoc('<p>blah</p>, {doctype:'<!doctype html>', title:'foo', charset:'utf-8', charsetmeta:'<meta charset="utf-8">'});
+        // Options - most of these set the default values for components of the HTML document
+        splitdoc('<p>blah</p>, {
+            doctype:'<!doctype html>',
+            title:'foo',
+            charset:'utf-8',
+            charsetmeta:'<meta charset="utf-8">'
+        });
         
     notes
         The script attempts absolutely no valdation. It simply works with what it would expect from a valid document or fragment.
@@ -59,17 +64,17 @@ var splitdoc = (function(){
         return str.replace(/^[\0\t\n\v\f\r\s]+|[\0\t\n\v\f\r\s]+$/g, ''); // match the full set of whitespace characters
     }
     
-    function Splitdoc(raw, defaults){
+    function Splitdoc(raw, options){
         var
             // cast raw to string
             html = typeof raw !== 'undefined' && raw !== null ? raw + '' : '',
         
-            // default html document
-            // use `defaults` argument to set these
-            doctypeDefault = defaults && typeof defaults.doctype !== 'undefined' ? defaults.doctype : '<!doctype html>',
-            charsetDefault = defaults && typeof defaults.charset !== 'undefined' ? defaults.charset : 'utf-8',
-            charsetMetaDefault = defaults && typeof defaults.charsetmeta !== 'undefined' ? defaults.charsetmeta : '<meta charset=' + charsetDefault + '>',
-            titleDefault = defaults && typeof defaults.title !== 'undefined' ? defaults.title : '',
+            // options - most of these set the default values for components of the HTML document
+            doctypeDefault = options && typeof options.doctype !== 'undefined' ? options.doctype : '<!doctype html>',
+            charsetDefault = options && typeof options.charset !== 'undefined' ? options.charset : 'utf-8',
+            charsetMetaDefault = options && typeof options.charsetmeta !== 'undefined' ? options.charsetmeta : '<meta charset=' + charsetDefault + '>',
+            titleDefault = options && typeof options.title !== 'undefined' ? options.title : '',
+            bodyDefault = options && typeof options.body !== 'undefined' ? options.body : '',
             
             // regular expressions to match supplied document
             doctypeRegex = /<!doctype html[^>]*>/i,
@@ -102,13 +107,19 @@ var splitdoc = (function(){
             title = trim(titleMatch ? titleMatch[2] : titleDefault),
             
             bodyAttr = bodyMatch ? bodyMatch[1] : '',
-            bodyContents = trim(bodyMatch ? bodyMatch[2] : (doctypeMatch || headMatch ? '' : html));
+            bodyContents =  trim(
+                bodyMatch ?
+                    bodyMatch[2] : // supplied body contents
+                    doctypeMatch || headMatch ? // if there's already a doctype or a head section
+                        bodyDefault || '' : // then bodyContents is set to default value or blank
+                        html // if not, then assume the whole HTML string is to be the contents of the body
+            );
         
         if (!titleMatch){
             headContents = '<title>' + titleDefault + '</title>' + headContents;
         }
         if (!charsetMatch){
-            headContents = charsetTag + headContents;
+            headContents = charsetTag + headContents ;
         }
         
         // document reference object
@@ -135,14 +146,19 @@ var splitdoc = (function(){
         body: function(){
             return '<body' + this.bodyAttr + '>' + this.bodyContents + '</body>';
         },
+        // construct <html> markup
+        html: function(){
+            return '<html' + this.htmlAttr + '>' + this.head() + this.body() + '</html>';
+        },
+        // construct html document source code
         // enhance the object's string representation, by overriding Object prototype's toString function
         toString: function(){
-            return this.doctype + '<html' + this.htmlAttr + '>' + this.head() + this.body() + '</html>';
+            return this.doctype + this.html();
         }
     };
     
-    function splitdoc(html, defaults){
-        return new Splitdoc(html, defaults);
+    function splitdoc(html, options){
+        return new Splitdoc(html, options);
     }
     
     return (exports.splitdoc = splitdoc);
