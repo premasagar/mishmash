@@ -35,10 +35,12 @@
         splitdoc('hello world');
         splitdoc('<p>blah</p>');
         splitdoc('<body><p>blah</p></body>');
-        splitdoc('<head><body><p>blah</p></body></head>');
-        splitdoc('<head><title>foo</title><body><p>blah</p></body></head>');
+        ...
         splitdoc('<head><meta charset=utf-8><title>foo</title><body><p>blah</p></body></head>');
         splitdoc('<!doctype html><head><meta charset=utf-8><title>foo</title><body><p>blah</p></body></head>');
+        
+        // Optional defaults
+        splitdoc('<p>blah</p>, {doctype:'<!doctype html>', title:'foo', charset:'utf-8', charsetmeta:'<meta charset="utf-8">'});
         
     notes
         The script attempts absolutely no valdation. It simply works with what it would expect from a valid document or fragment.
