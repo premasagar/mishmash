@@ -1,4 +1,3 @@
-// Tmpl
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
 // Modified by Neil, on Rick Stahl's blog http://www.west-wind.com/Weblog/posts/509108.aspx#532836
