@@ -67,6 +67,9 @@ var _
             var i, argLen, args = arguments, indent = '';
             argLen = args.length;
 	        for (i=0; i < argLen; i++){
+	            if (typeof args[i] === 'object' && JSON && JSON.stringify){
+	                args[i] = JSON.stringify(args[i]);
+	            }
 		        console.log(indent + args[i]);
                 indent = '---- ';
 	        }
