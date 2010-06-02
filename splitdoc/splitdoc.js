@@ -79,11 +79,11 @@ var splitdoc = (function(){
             // regular expressions to match supplied document
             doctypeRegex = /<!doctype html[^>]*>/i,
             htmlAttrRegex = /<html([^>]*)>/i,
-            headRegex = /<head([^>]*)>(.*?)<\/head>/i, // <head> and the first available </head>, with backrefs: 1) head attributes 2) contents
+            headRegex = /<head([^>]*)>([\w\W]*?)<\/head>/i, // <head> and the first available </head>, with backrefs: 1) head attributes 2) contents
             // TODO: Improve robustness of the charset regex
             charsetRegex = /<meta charset=([\w\-]+)\s*\/?>|<meta http-equiv=["']Content-Type["'] content=["']text\/html;\s*charset=([\w\-]+)["']\s*\/?>/,
-            titleRegex = /<title([^>]*)>(.*?)<\/title>/i,
-            bodyRegex = /<body([^>]*)>(.*?)<\/body>/i, // <body> and the first available </body>, with backrefs: 1) body attributes 2) contents
+            titleRegex = /<title([^>]*)>([\w\W]*?)<\/title>/i,
+            bodyRegex = /<body([^>]*)>([\w\W]*?)<\/body>/i, // <body> and the first available </body>, with backrefs: 1) body attributes 2) contents
         
             // match the supplied document
             doctypeMatch = html.match(doctypeRegex),
