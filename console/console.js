@@ -28,10 +28,10 @@ var _
 
 = (function(){
     var
-        win = window,
-        ua = win.navigator.userAgent,
-        console = win.console,
-        opera = win.opera,
+        window = this,
+        ua = window.navigator.userAgent,
+        console = window.console,
+        opera = window.opera,
         debug;
     
     // Doesn't support console API
