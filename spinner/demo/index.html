@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8 />
+    <title>spinner</title>
+</head>
+
+<body>
+    <div id=demo></div>
+    <button id=stop>stop</button>
+    <button id=start>start</button>
+    
+    <script src="../spinner.js"></script>
+    <script>
+        // Create a new spinner
+        var myspinner = spinner();
+        
+        // Add the spinner element to the document
+        document.getElementById('demo').appendChild(myspinner.elem);
+        
+        // Demonstrate the ability to stop and start the spinner
+        document.getElementById('stop').onclick = function(){
+            myspinner.stop();
+        };
+        document.getElementById('start').onclick = function(){
+            myspinner.start();
+        };
+    </script>
+</body>
+</html>
