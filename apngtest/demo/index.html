@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8 />
+    <title>apngtest</title>
+</head>
+
+<body>
+    <h1><a href="http://github.com/premasagar/mishmash/tree/master/apngtest/">apngtest</a></h1>
+    <div id=demo style="font-size:2em;"></div>
+    
+    <script src="../apngtest.js"></script>
+    <script>
+        apngtest(function(apngIsSupported){
+            var demo = document.getElementById('demo');
+            
+            if (apngIsSupported){
+                demo.innerHTML = 'Yes! APNG is supported in this browser.';
+            }
+            else {
+                demo.innerHTML = 'No! APNG is not supported in this browser.';
+            }
+        });
+    </script>
+</body>
+</html>
