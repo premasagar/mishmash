@@ -40,7 +40,7 @@ var spinner = (function(){
         width = 16,
         height = 16,
         frames = 32,
-        interval = 30;
+        interval = 31.25;
     
     // end SETTINGS
     

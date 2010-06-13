@@ -3,9 +3,38 @@
 <head>
     <meta charset=utf-8 />
     <title>spinner</title>
+    <style>
+        .spinner {
+          -webkit-animation-name: 'spinner-rotate';
+          -webkit-animation-timing-function: linear;
+          -webkit-animation-duration: 1s;
+          -webkit-animation-iteration-count: infinite;
+        }
+
+        @-webkit-keyframes spinner-rotate {
+          from {
+            -webkit-transform: rotate(0deg);
+          }
+          to {
+            -webkit-transform: rotate(360deg);
+          }
+        }
+    </style>
 </head>
 
 <body>
+    <h1>Animated PNG examples</h1>
+    
+    <h2>1) APNG, with WebKit transforms</h2>
+    <p>This APNG file animates in Firefox 3+ and Opera 9.5+. For WebKit browsers (e.g. Safari and Chrome), the APNG shows its first, static frame, to which a CSS rotation animation is applied. No JavaScript is used.</p>
+    <img class=spinner src="spinner-1.png">
+
+    <hr>
+
+    <h2>2) JavaScript spinner</h2>
+    <p>This could be used for browsers that don't support APNG or CSS animations (e.g. Internet Explorer). A sprite image that contains each of the frames is used. The sprite is applied as the background image for an element, and the background position is progressively changed.</p>
+    
+    <p>In this example, the sprite image is included within the JavaScript as a dataURL, which isn't supported by IE6 or IE7 (but is supported by IE8+). This is just for convenience - the image could be included as an external file, which would allow support in IE6 and IE7 too.</p>
     <div id=demo></div>
     <button id=stop>stop</button>
     <button id=start>start</button>
