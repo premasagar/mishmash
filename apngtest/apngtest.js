@@ -32,12 +32,13 @@ function apngtest(callback){
                 canvasContext.drawImage(img, 0, 0);
                 callback(canvasContext.getImageData(0, 0, 1, 1).data[3] === 0); // true if APNG is supported
             }
+            // TODO: Should datauri fail callback be called from img.onerror callback?
             else { // browser doesn't support dataURIs
-                callback(null);
+                callback(null, 'datauri');
             }
         };
     }
     else { // browser doesn't support canvas
-        callback(null);
+        callback(null, 'canvas');
     }
 }
