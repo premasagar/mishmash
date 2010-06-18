@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8 />
+    <title>github</title>
+    <style>
+        .title {
+            font-family:monospace;
+        }
+        #github {
+            font-family:monospace;
+            font-weight:bold;
+            background-color:black;
+            color:white;
+            border:2px solid white;
+            width:16em;
+        }
+        #github a {
+            color:red;
+            text-decoration:none;
+        }
+        #github a:hover {
+            background-color:red;
+            color:black;
+        }
+        #github ul {
+            margin:0;
+            padding:0;
+        }
+        #github li {
+            list-style-type:none;
+            padding:1.68em 1.68em 0.38em;
+            margin:0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="title">$ github/premasagar</h1>
+    <div id=github></demo>
+    
+    <script src="../../jquery.js"></script>
+    <script src="../github.js"></script>
+    <script>
+        github.html('premasagar', 'repos', function(repos){
+            jQuery('#github').append(repos);
+        });
+    </script>
+</body>
+</html>
