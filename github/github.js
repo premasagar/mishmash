@@ -15,6 +15,12 @@ var github = (function(){
         repos: function(user, callback){
             jQuery.getJSON('http://github.com/api/v2/json/repos/show/' + user + '/?callback=?', callback);
         },
+        user: function(user, callback){
+            jQuery.getJSON('http://github.com/api/v2/json/user/show/' + user + '/?callback=?', callback);
+        },
+        gists: function(user, callback){
+            jQuery.getJSON('http://gist.github.com/api/v1/json/gists/' + user + '/?callback=?', callback);
+        },
         html:function(user, type, callback){
             var toHtml;
             if (type === 'repos'){
