@@ -32,7 +32,7 @@ var _
         ua = window.navigator.userAgent,
         console = window.console,
         opera = window.opera,
-        debug;
+        debug, log;
     
     // Doesn't support console API
     if (!console){
@@ -64,43 +64,47 @@ var _
     else {
         debug = console.debug;
         
-        // WebKit complains if console's debug function is called on its own
-        if (/webkit/i.test(ua)){
-            return function(){
-                var i = 0,
-                    args = arguments,
-                    len = args.length,
-                    arr = [];
-                
-                if (len === 1){
-                    console.debug(args[i]);
-                }
-                else if (len > 1){
-                    for (; i < len; i++){
-                        arr.push(args[i]);
+        if (debug){
+            // WebKit complains if console's debug function is called on its own
+            if (/webkit/i.test(ua)){
+                return function(){
+                    var i = 0,
+                        args = arguments,
+                        len = args.length,
+                        arr = [];
+                    
+                    if (len === 1){
+                        console.debug(args[i]);
                     }
-                    console.debug(arr);
-                }
-            };
+                    else if (len > 1){
+                        for (; i < len; i++){
+                            arr.push(args[i]);
+                        }
+                        console.debug(arr);
+                    }
+                };
+            }
+            return debug;
         }
-        
-        return debug ? // FF Firebug
-            debug :
-            function(){
-	            var i, argLen, log = console.log, args = arguments, indent = '';
-	            if (log){ // WebKit
-		            if (typeof log.apply === 'function'){
-			            log.apply(console, args);
-		            }
-		            else { // IE8
-			            argLen = args.length;
-			            for (i=0; i < argLen; i++){
-				            log(indent + args[i]);
-                            indent = '---- ';
-			            }
-		            }
-	            }
-            };
+        if (log){ // old WebKit
+            if (typeof log.apply === 'function'){
+                return function(){
+                    log.apply(console, arguments);
+                };
+            }
+            else { // IE8
+                return function(){
+                    var argLen = arguments.length,
+                        indent = '',
+                        i;
+                        
+                    for (i=0; i < argLen; i++){
+                        log(indent + args[i]);
+                        indent = '---- ';
+                    }
+                };
+            }
+        }
     }
 }());
 
