@@ -94,11 +94,12 @@ var _
             }
             else { // IE8
                 return function(){
-                    var argLen = arguments.length,
+                    var args = arguments,
+                        len = arguments.length,
                         indent = '',
                         i;
                         
-                    for (i=0; i < argLen; i++){
+                    for (i=0; i < len; i++){
                         log(indent + args[i]);
                         indent = '---- ';
                     }
