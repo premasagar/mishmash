@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /*!
 * Console
@@ -27,8 +27,7 @@
 var _
 
 = (function(){
-    var
-        window = this,
+    var window = self,
         ua = window.navigator.userAgent,
         console = window.console,
         opera = window.opera,
@@ -45,17 +44,17 @@ var _
                  argLen = args.length;
                  for (i=0; i < argLen; i++){
                      arg = args[i];
-                     if (typeof arg === 'object' && arg !== null){
+                     if (typeof arg === "object" && arg !== null){
                         subArgs = [];
                         for (prop in arg){
                             try {
                                 if (arg.hasOwnProperty(prop)){
-                                    subArgs.push(prop + ': ' + arg[prop]);
+                                    subArgs.push(prop + ": " + arg[prop]);
                                 }
                             }
                             catch(e){}
                         }
-                        log('----subArgs: ' + subArgs);
+                        log("----subArgs: " + subArgs);
                      }
                  }
              } :
@@ -87,7 +86,7 @@ var _
             return debug;
         }
         if (log){ // old WebKit
-            if (typeof log.apply === 'function'){
+            if (typeof log.apply === "function"){
                 return function(){
                     log.apply(console, arguments);
                 };
@@ -96,12 +95,12 @@ var _
                 return function(){
                     var args = arguments,
                         len = arguments.length,
-                        indent = '',
+                        indent = "",
                         i;
                         
                     for (i=0; i < len; i++){
                         log(indent + args[i]);
-                        indent = '---- ';
+                        indent = "---- ";
                     }
                 };
             }
