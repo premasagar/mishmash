@@ -14,95 +14,104 @@
 
 */
 
-function ready(){	
-	var doc = document,
-		docEl = doc.documentElement,
-		addEventListener = doc.addEventListener,
-		attachEvent = doc.attachEvent,
-		readyFns = [],
-		ready,
-		bound,
-		dcl = 'DOMContentLoaded',
-		orsc = 'onreadystatechange',
-		atTopLevel;
-		
-	function onReady(fn) {
-		
-		readyFns.push(fn);
-		
-		if ( ready ) { return fn(); }
-		if ( bound ) { return; }
-		
-		bound = true;
-		
-		if ( addEventListener ) {
-			doc.addEventListener(dcl, DOMContentLoaded, false);
-			window.addEventListener('load', fireReady, false); // fallback to window.onload
-		} else {
-			if ( attachEvent ) {
-				
-				// IE Event model
-				
-				doc.attachEvent(orsc, DOMContentLoaded);
-				window.attachEvent('onload', fireReady); // fallback to window.onload
-				
-				try {
-					atTopLevel = !window.frameElement;
-				} catch(e) {}
-				
-				if ( docEl.doScroll && atTopLevel ) {
-					scrollCheck();
-				}
-				
-			}
-		}
-		
-	}
-	
-	function scrollCheck() {
-		
-		if (ready) { return; }
-		
-		try {
-			// http://javascript.nwbox.com/IEContentLoaded/
-			docEl.doScroll("left");
-		} catch(e) {
-			setTimeout(scrollCheck, 1);
-			return;
-		}
-		
-		// DOM ready
-		fireReady();
-		
-	}
-	
-	function fireReady() {
-		
-		if (ready) { return; }
-		ready = true;
-		
-		for (var i = 0, l = readyFns.length; i < l; i++) {
-			readyFns[i]();
-		}
-		
-	}
-	
-	function DOMContentLoaded() {
-		
-		if ( addEventListener ) {
-			doc.removeEventListener(dcl, DOMContentLoaded, false);
-			fireReady();
-		} else {
-			if ( attachEvent && doc.readyState === 'complete' ) {
-				doc.detachEvent(orsc, DOMContentLoaded);
-				fireReady();
-			}
-		}
-		
-	}
-	
-	return onReady;
-	
-}
+var ready = (function () {
+    var window = self,
+        doc = window.document,
+        docEl = doc.documentElement,
+        addEventListener = doc.addEventListener,
+        attachEvent = doc.attachEvent,
+        readyFns = [],
+        ready,
+        bound,
+        dcl = 'DOMContentLoaded',
+        orsc = 'onreadystatechange',
+        atTopLevel;
+
+    function fireReady() {
+    
+        if (ready) { 
+            return; 
+        }
+        ready = true;
+    
+        for (var i = 0, l = readyFns.length; i < l; i += 1) {
+            readyFns[i]();
+        }
+    
+    }
+
+    function scrollCheck() {
+    
+        if (ready) { 
+            return; 
+        }
+    
+        try {
+            // http://javascript.nwbox.com/IEContentLoaded/
+            docEl.doScroll("left");
+        } catch (e) {
+            setTimeout(scrollCheck, 1);
+            return;
+        }
+    
+        // DOM ready
+        fireReady();
+    
+    }
+
+    function DOMContentLoaded() {
+    
+        if (addEventListener) {
+            doc.removeEventListener(dcl, DOMContentLoaded, false);
+            fireReady();
+        } else {
+            if (attachEvent && doc.readyState === 'complete') {
+                doc.detachEvent(orsc, DOMContentLoaded);
+                fireReady();
+            }
+        }
+    
+    }
+    
+    function onReady(fn) {
+    
+        readyFns.push(fn);
+    
+        if (ready) { 
+            return fn(); 
+        }
+        if (bound) { 
+            return; 
+        }
+    
+        bound = true;
+    
+        if (addEventListener) {
+            doc.addEventListener(dcl, DOMContentLoaded, false);
+            window.addEventListener('load', fireReady, false); // fallback to window.onload
+        } else {
+            if (attachEvent) {
+            
+                // IE Event model
+            
+                doc.attachEvent(orsc, DOMContentLoaded);
+                window.attachEvent('onload', fireReady); // fallback to window.onload
+            
+                try {
+                    atTopLevel = !window.frameElement;
+                } catch (e) {}
+            
+                if (docEl.doScroll && atTopLevel) {
+                    scrollCheck();
+                }
+            
+            }
+        }
+    
+    }
+
+    return onReady;
+
+}());
 
 /*jslint browser: true, devel: true, onevar: true, undef: true, eqeqeq: true, bitwise: true, regexp: true, strict: true, newcap: true, immed: true */
