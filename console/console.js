@@ -24,9 +24,7 @@
 
 */
 
-var _
-
-= (function(){
+var _ = (function(){
     var window = self,
         ua = window.navigator.userAgent,
         console = window.console,
@@ -62,6 +60,7 @@ var _
     }
     else {
         debug = console.debug;
+        log = console.log;
         
         if (debug){
             // WebKit complains if console's debug function is called on its own
