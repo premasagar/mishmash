@@ -17,6 +17,8 @@
 
 */
 
+/*jslint onevar: true, browser: true, devel: true, undef: true, eqeqeq: true, bitwise: true, regexp: false, strict: true, newcap: false, immed: true, nomen: false, evil: true*//*global window: true, self: true */
+
 var ready = (function () {
     var window = self,
         doc = window.document,
@@ -105,5 +107,3 @@ var ready = (function () {
 
     return onReady;
 }());
-
-/*jslint browser: true, devel: true, onevar: true, undef: true, eqeqeq: true, bitwise: true, regexp: true, strict: true, newcap: true, immed: true */
