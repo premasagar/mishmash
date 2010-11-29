@@ -22,10 +22,9 @@
 
 */
 
-(function($){
+(function(jQuery){
     function throttle(handler, interval, defer){
-        var
-            context = this,
+        var context = this,
             limitOn; // falsey
             
         interval = interval || 250; // milliseconds
@@ -52,11 +51,11 @@
     }
 
     // jQuery.throttle
-    $.throttle = throttle;
+    jQuery.throttle = throttle;
     
     // jQuery(elem).throttle
-    $.fn.throttle = function(eventType, handler, interval, defer){
-        return $(this).bind(eventType, throttle(handler, interval, defer));
+    jQuery.fn.throttle = function(eventType, handler, interval, defer){
+        return jQuery(this).bind(eventType, throttle(handler, interval, defer));
     };
 }(jQuery));
 
