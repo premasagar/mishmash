@@ -23,26 +23,42 @@
 
 *//*global window */
 
-(function(window){    
+var Cache = (function(window){    
     "use strict";
 
-    var namespace = "",
-        JSON = window.JSON,
+    var JSON = window.JSON,
         localStorage;
+            
+    /////
     
+    
+    // Is localStorage available? If always known to exist, then this block may be removed, and the line above changed to: localStorage = window.localStorage;
     try {
-        localStorage = window.localStorage || false;
+        localStorage = window.localStorage;
     }
-    catch(e){
-        localStorage = false;
+    catch(e){}
+    
+    if (!localStorage){
+        (function(){
+            var Mock = function(){},
+                p = Mock.prototype;
+                
+            p.set = p.remove = function(){ return this; };
+            p.get = p.wrapper = p.time = function(){};
+            return Mock;
+        }());
     }
     
-    // **
     
+    /////
+    
+        
     function Cache(namespace){
         this._prefix = namespace ? namespace + "." : "";
     }
     Cache.prototype = {
+        localStorage: true,
+        
         set: function(key, value){
             localStorage[this._prefix + key] = JSON.stringify({
                 v: value,
@@ -54,12 +70,12 @@
             return localStorage[this._prefix + key];
         },
         get: function(key){
-            var value = this.wrapper(key);
-            return value ? value.v : value;
+            var wrapper = this.wrapper(key);
+            return wrapper ? JSON.parse(wrapper).v : wrapper;
         },
         time: function(key){
-            var value = this.wrapper(key);
-            return value ? value.t : value;
+            var wrapper = this.wrapper(key);
+            return wrapper ? JSON.parse(wrapper).t : wrapper;
         },
         remove: function(key){
             localStorage.removeItem(this._prefix + key);
