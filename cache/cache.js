@@ -54,20 +54,20 @@ var Cache = (function(window){
     
         
     function Cache(namespace){
-        this._prefix = namespace ? namespace + "." : "";
+        this.prefix = namespace ? namespace + "." : "";
     }
     Cache.prototype = {
         localStorage: true,
         
         set: function(key, value){
-            localStorage[this._prefix + key] = JSON.stringify({
+            localStorage[this.prefix + key] = JSON.stringify({
                 v: value,
                 t: (new Date()).getTime()
             });
             return this;
         },
         wrapper: function(key){
-            return localStorage[this._prefix + key];
+            return localStorage[this.prefix + key];
         },
         get: function(key){
             var wrapper = this.wrapper(key);
@@ -78,7 +78,7 @@ var Cache = (function(window){
             return wrapper ? JSON.parse(wrapper).t : wrapper;
         },
         remove: function(key){
-            localStorage.removeItem(this._prefix + key);
+            localStorage.removeItem(this.prefix + key);
             return this;
         }
     };
