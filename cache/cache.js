@@ -23,7 +23,7 @@
 
 *//*global window */
 
-var Cache = (function(window){    
+var Cache = (function(window){
     "use strict";
 
     var JSON = window.JSON,
