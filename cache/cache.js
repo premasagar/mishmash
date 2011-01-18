@@ -27,7 +27,8 @@ var Cache = (function(window){
     "use strict";
 
     var JSON = window.JSON,
-        localStorage;
+        localStorage,
+        undef;
             
     /////
     
@@ -54,34 +55,48 @@ var Cache = (function(window){
     
         
     function Cache(namespace){
-        this._prefix = namespace ? namespace + "." : "";
-    }
-    Cache.prototype = {
-        localStorage: true,
+        var cache = function(key, value, keep){
+            if (value === undef){
+                return cache.get(key);
+            }
+            if (keep !== false){
+                return cache.set(key, value);
+            }
+            return cache.remove(key);
+        };
         
-        set: function(key, value){
+        cache._prefix = namespace ? namespace + "." : "";
+        cache.localStorage = true;
+        
+        cache.set = function(key, value){
             localStorage[this._prefix + key] = JSON.stringify({
                 v: value,
                 t: (new Date()).getTime()
             });
             return this;
-        },
-        wrapper: function(key){
+        };
+        
+        cache.wrapper = function(key){
             return localStorage[this._prefix + key];
-        },
-        get: function(key){
+        };
+        
+        cache.get = function(key){
             var wrapper = this.wrapper(key);
             return wrapper ? JSON.parse(wrapper).v : wrapper;
-        },
-        time: function(key){
+        };
+        
+        cache.time = function(key){
             var wrapper = this.wrapper(key);
             return wrapper ? JSON.parse(wrapper).t : wrapper;
-        },
-        remove: function(key){
+        };
+        
+        cache.remove = function(key){
             localStorage.removeItem(this._prefix + key);
             return this;
-        }
-    };
+        };
+                
+        return cache;
+    }
     
     return Cache;
 }(window));
