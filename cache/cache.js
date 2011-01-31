@@ -59,24 +59,30 @@ var Cache = (function(window){
     Cache.prototype = {
         localStorage: true,
         
-        set: function(key, value){
-            localStorage[this.prefix + key] = JSON.stringify({
+        set: function(key, value, returnWrapper){
+            var wrapper = {
                 v: value,
                 t: (new Date()).getTime()
-            });
-            return this;
+            };
+            localStorage[this.prefix + key] = JSON.stringify(wrapper);
+            return returnWrapper !== true ? this : wrapper;
         },
+        
         wrapper: function(key){
-            return localStorage[this.prefix + key];
+            var cached = localStorage[this.prefix + key];
+            return cached ? JSON.parse(cached) : cached;
         },
+        
         get: function(key){
             var wrapper = this.wrapper(key);
-            return wrapper ? JSON.parse(wrapper).v : wrapper;
+            return wrapper ? wrapper.v : wrapper;
         },
+        
         time: function(key){
             var wrapper = this.wrapper(key);
             return wrapper ? JSON.parse(wrapper).t : wrapper;
         },
+        
         remove: function(key){
             localStorage.removeItem(this.prefix + key);
             return this;
