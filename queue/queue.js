@@ -151,7 +151,7 @@ var Queue = (function(window){
                 
                     // Remove id from keys array
                     if (len > 1){
-                        keys = keys.slice(0,i).concat(keys.slice(i+1));
+                        keys = this.keys = keys.slice(0,i).concat(keys.slice(i+1));
                         this.cache.set("keys", keys);
                     }
                     // If no ids left, then reset counter
