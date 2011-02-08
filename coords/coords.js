@@ -1,5 +1,3 @@
-'use strict';
-
 /*!
 * Coords
 *   github.com/premasagar/mishmash/tree/master/coords/
@@ -23,15 +21,15 @@
     examples
         $.coords.mouse(true)        // start tracking mouse coords
         $.coords.mouse()            // get mouse coords as [x,y]
-        $.coords.mouse('#elem')     // is mouse over #elem element?
+        $.coords.mouse("#elem")     // is mouse over #elem element?
         $.coords.mouse(elem)        // is mouse over elem element?
         $.coords.mouse([0,8,5,2])  // is mouse within boundary?
         $.coords.mouse(false)       // stop tracking mouse coords
         
-        $('#elem').coords()         // get coords of #elem element
-        $('#elem').coords('#other') // does #elem overlap #other?
-        $('#elem').coords(other)    // does #elem overlap other element?
-        $('#elem').coords([0,8,5,2])// does #elem overlap boundary?
+        $("#elem").coords()         // get coords of #elem element
+        $("#elem").coords("#other") // does #elem overlap #other?
+        $("#elem").coords(other)    // does #elem overlap other element?
+        $("#elem").coords([0,8,5,2])// does #elem overlap boundary?
         
         $.coords.elem([1,2,3,4], [5,6,7,8]) // do the two overlap?
     
@@ -54,6 +52,8 @@
 
 
 (function($){
+    "use strict";
+    
     var mouse, elem;
 
     // track the mouse's position
@@ -73,12 +73,12 @@
         }
         
         function stopTracking(){
-            $(document).unbind('mousemove', captureCoords);
+            $(document).unbind("mousemove", captureCoords);
         }
         
         return $.extend(
             function(arg1, includeMargin){
-                if (typeof arg1 !== 'undefined' && typeof arg1 !== 'boolean'){
+                if (typeof arg1 !== "undefined" && typeof arg1 !== "boolean"){
                     return elem(mouse(), arg1, includeMargin);
                 }
                 else if (arg1 === true && !tracking){
@@ -154,12 +154,12 @@
             
             // if no bounds or elements are passed, then the default is the top-level <html> element
             if (!bounds1 || bounds1 === true){
-                bounds1 = 'html';
+                bounds1 = "html";
             }
             bounds1 = toBounds(bounds1, includeMargin);
             
             // looking for bounds of element in arg1?
-            if (typeof bounds2 === 'undefined' || typeof bounds2 === 'boolean'){
+            if (typeof bounds2 === "undefined" || typeof bounds2 === "boolean"){
                 return bounds1;
             }
             bounds2 = toBounds(bounds2, includeMargin);
