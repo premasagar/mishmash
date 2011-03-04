@@ -33,12 +33,11 @@ var _ = (function(){
         air = window.air && window.air.Introspector,
         debug = console && console.debug,
         log = console && console.log,
-        method,
-        msg = "Debugging on";
+        method;
     
     if (debug){
         try {
-            debug(msg);
+            debug();
             return debug;
         }
         catch(e){
@@ -74,7 +73,6 @@ var _ = (function(){
     }
     
     if (method){
-        method(msg);
         return method;
     }
     return function(){};
