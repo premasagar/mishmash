@@ -19,7 +19,7 @@
 
     **
 
-    v0.1.0
+    v0.1.1
 
 *//*global window */
 
@@ -39,12 +39,13 @@ var Cache = (function(window){
     catch(e){}
     
     if (!localStorage){
-        (function(){
+        return (function(){
             var Mock = function(){},
                 p = Mock.prototype;
                 
             p.set = p.remove = function(){ return this; };
             p.get = p.wrapper = p.time = function(){};
+            p.localStorage = false;
             return Mock;
         }());
     }
