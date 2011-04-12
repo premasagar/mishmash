@@ -50,11 +50,19 @@ var Queue = (function(window){
         this.keys = this.cache.get("keys") || [];
         this.count = this.cache.get("count") || 0;
         this.sync.method = options.sync;
+        this.updateLength();
         
         // lookup for items currently being sent
         this.processing = {};
     }
-    Queue.prototype = {
+    Queue.prototype = {        
+        length: 0,
+        
+        updateLength: function(){
+            this.length = this.keys.length;
+            return this;
+        },
+        
         // TODO: keep a certain number of items avail in memory?
         get: function(arg){
             var argType = typeof arg,
@@ -85,17 +93,14 @@ var Queue = (function(window){
                     // In case of cache corruption, cleanup
                     if (!item){
                         this.remove(arg[i-1]);
-                        continue;
                     }
-                    collection.push(item);
+                    else {
+                        collection.push(item);
+                    }
                 }
                 collection._queueBatch = true;
                 return collection;
             }
-        },
-        
-        length: function(){
-            return this.keys.length;
         },
         
         slice: function(from, to){
@@ -108,26 +113,26 @@ var Queue = (function(window){
         },
         
         last: function(){
-            return this.get(this.keys[this.length() -1]);
+            return this.get(this.keys[this.length -1]);
         },
         
-        add: function(item, callback){ // callback is optional, it is passed on to send() and is the response from the server
-        
+        add: function(item, callback){ // callback is optional, it is passed on to sync() and is the response from the server
             var count = ++this.count,
                 wrapper;
                 
             this.keys.push(count);
-                            
+            this.updateLength();
+            
             wrapper = this.cache
                 .set("count", count)
                 .set("keys", this.keys)
-                .set(count, item, true);
-            
+                .set(count, item, true);                            
+                
             item._queueId = count;
             item._queueTime = wrapper.t;
             
             if (this.sync.method){
-                this.sync(item);
+                this.sync(item, callback);
             }
             return item;
         },
@@ -148,11 +153,12 @@ var Queue = (function(window){
                 if (keys[i] === id){
                     // Remove item from cache
                     this.cache.remove(keys[i]);
-                
+                    
                     // Remove id from keys array
                     if (len > 1){
                         keys = this.keys = keys.slice(0,i).concat(keys.slice(i+1));
-                        this.cache.set("keys", keys);
+                        this.updateLength()
+                            .cache.set("keys", keys);
                     }
                     // If no ids left, then reset counter
                     else {
@@ -166,18 +172,18 @@ var Queue = (function(window){
         
         reset: function(){
             this.cache
-                .set("count", this.count = 0)
-                .set("keys", this.keys = []);
-                
-            return this;
+                .set("count", (this.count = 0))
+                .set("keys",  (this.keys = []));
+            
+            return this.updateLength();
         },
         
-        sync: function(item){
+        sync: function(item, callback){
             if (typeof item === "function"){
                 this.sync.method = item;
                 return true;
             }
-            this.sync.method(item);
+            this.sync.method(item, callback);
             return this;
         }
     };
