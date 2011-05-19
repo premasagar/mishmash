@@ -53,21 +53,19 @@
 
 */
 
-/*jslint onevar: true, browser: true, devel: true, undef: true, eqeqeq: true, bitwise: true, regexp: false, strict: true, newcap: false, immed: true, nomen: false, evil: true*//*global window: true, self: true */
-
 var splitdoc = (function(){
     "use strict";
 
-    var exports = exports || {};
+    var exports = {};
     
     function trim(str){
         return str.replace(/^[\0\t\n\v\f\r\s]+|[\0\t\n\v\f\r\s]+$/g, ""); // match the full set of whitespace characters
     }
     
     function Splitdoc(raw, options){
-        var
-            // cast raw to string
-            html = typeof raw !== "undefined" && raw !== null ? raw + "" : "",
+        var // cast raw to string
+            html = (typeof raw !== "undefined" && raw !== null) ?
+                String(raw) : "",
         
             // options - most of these set the default values for components of the HTML document
             doctypeDefault = options && typeof options.doctype !== "undefined" ? options.doctype : "<!doctype html>",
@@ -163,3 +161,5 @@ var splitdoc = (function(){
     
     return (exports.splitdoc = splitdoc);
 }());
+
+/*jslint white: false, onevar: true, undef: true, nomen: true, regexp: false, plusplus: true, bitwise: true, newcap: true, maxerr: 50, indent: 4 */
