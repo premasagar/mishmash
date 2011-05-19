@@ -1,5 +1,3 @@
-"use strict";
-
 /*!
 * Console
 *   github.com/premasagar/mishmash/tree/master/console/
@@ -22,14 +20,12 @@
     
     The function can easily be assigned to a different var, instead of '_'
 
-*/
+*//*global window */
 
-/*jslint onevar: true, browser: true, devel: true, undef: true, eqeqeq: true, bitwise: true, regexp: false, strict: true, newcap: false, immed: true, nomen: false, evil: true*//*global window: true, self: true */
+var _ = (function(window){
+    "use strict";
 
-var _ = (function(){
-    var window = self,
-        ua = window.navigator.userAgent,
-        console = window.console,
+    var console = window.console,
         air = window.air && window.air.Introspector,
         debug = console && console.debug,
         log = console && console.log,
@@ -76,4 +72,6 @@ var _ = (function(){
         return method;
     }
     return function(){};
-}());
+}(window));
+
+/*jslint white: false, onevar: true, undef: true, nomen: true, regexp: false, plusplus: true, bitwise: true, newcap: true, maxerr: 50, indent: 4 */
