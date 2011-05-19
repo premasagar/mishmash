@@ -1,5 +1,3 @@
-"use strict";
-
 /*!
 * splitdoc
 *   github.com/premasagar/mishmash/tree/master/splitdoc/
@@ -58,6 +56,8 @@
 /*jslint onevar: true, browser: true, devel: true, undef: true, eqeqeq: true, bitwise: true, regexp: false, strict: true, newcap: false, immed: true, nomen: false, evil: true*//*global window: true, self: true */
 
 var splitdoc = (function(){
+    "use strict";
+
     var exports = exports || {};
     
     function trim(str){
@@ -72,7 +72,7 @@ var splitdoc = (function(){
             // options - most of these set the default values for components of the HTML document
             doctypeDefault = options && typeof options.doctype !== "undefined" ? options.doctype : "<!doctype html>",
             charsetDefault = options && typeof options.charset !== "undefined" ? options.charset : "utf-8",
-            charsetMetaDefault = options && typeof options.charsetmeta !== "undefined" ? options.charsetmeta : "<meta charset=" + charsetDefault + ">",
+            charsetMetaDefault = options && typeof options.charsetmeta !== "undefined" ? options.charsetmeta : "<meta charset='" + charsetDefault + "' />",
             titleDefault = options && typeof options.title !== "undefined" ? options.title : "",
             bodyDefault = options && typeof options.body !== "undefined" ? options.body : "",
             
@@ -81,7 +81,7 @@ var splitdoc = (function(){
             htmlAttrRegex = /<html([^>]*)>/i,
             headRegex = /<head([^>]*)>([\w\W]*?)<\/head>/i, // <head> and the first available </head>, with backrefs: 1) head attributes 2) contents
             // TODO: Improve robustness of the charset regex
-            charsetRegex = /<meta charset=([\w\-]+)\s*\/?>|<meta http-equiv=["']Content-Type["'] content=["']text\/html;\s*charset=([\w\-]+)["']\s*\/?>/,
+            charsetRegex = /<meta charset=['"]?([\w\-]+)['"]?\s*\/?>|<meta http-equiv=["']Content-Type["'] content=["']text\/html;\s*charset=([\w\-]+)["']\s*\/?>/,
             titleRegex = /<title([^>]*)>([\w\W]*?)<\/title>/i,
             bodyRegex = /<body([^>]*)>([\w\W]*?)<\/body>/i, // <body> and the first available </body>, with backrefs: 1) body attributes 2) contents
         
