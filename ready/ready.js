@@ -1,5 +1,3 @@
-"use strict";
-
 /*!
 * Ready
 *   github.com/premasagar/mishmash/tree/master/ready/
@@ -15,13 +13,12 @@
         
     v0.1
 
-*/
+*//*global window */
 
-/*jslint onevar: true, browser: true, devel: true, undef: true, eqeqeq: true, bitwise: true, regexp: false, strict: true, newcap: false, immed: true, nomen: false, evil: true*//*global window: true, self: true */
+var ready = (function (window) {
+    "use strict";
 
-var ready = (function () {
-    var window = self,
-        doc = window.document,
+    var doc = window.document,
         docEl = doc.documentElement,
         addEventListener = doc.addEventListener,
         attachEvent = doc.attachEvent,
@@ -33,12 +30,15 @@ var ready = (function () {
         atTopLevel;
 
     function fireReady() {
-        if (ready) { 
+        var i = 0,
+            l = readyFns.length;
+        
+        if (ready) {
             return; 
         }
         ready = true;
     
-        for (var i = 0, l = readyFns.length; i < l; i += 1) {
+        for (; i < l; i += 1) {
             readyFns[i]();
         }
     }
@@ -52,7 +52,7 @@ var ready = (function () {
             // http://javascript.nwbox.com/IEContentLoaded/
             docEl.doScroll("left");
         } catch (e) {
-            setTimeout(scrollCheck, 1);
+            window.setTimeout(scrollCheck, 1);
             return;
         }
     
@@ -106,4 +106,7 @@ var ready = (function () {
     }
 
     return onReady;
-}());
+}(window));
+
+
+/*jslint white: false, onevar: true, undef: true, nomen: true, regexp: false, plusplus: true, bitwise: true, newcap: true, maxerr: 50, indent: 4 */
