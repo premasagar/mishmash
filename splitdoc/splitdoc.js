@@ -70,7 +70,7 @@ var splitdoc = (function(){
             // options - most of these set the default values for components of the HTML document
             doctypeDefault = options && typeof options.doctype !== "undefined" ? options.doctype : "<!doctype html>",
             charsetDefault = options && typeof options.charset !== "undefined" ? options.charset : "utf-8",
-            charsetMetaDefault = options && typeof options.charsetmeta !== "undefined" ? options.charsetmeta : "<meta charset='" + charsetDefault + "' />",
+            charsetMetaDefault = options && typeof options.charsetmeta !== "undefined" ? options.charsetmeta : "<meta charset='" + charsetDefault + "'>",
             titleDefault = options && typeof options.title !== "undefined" ? options.title : "",
             bodyDefault = options && typeof options.body !== "undefined" ? options.body : "",
             
