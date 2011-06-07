@@ -2,37 +2,44 @@
 <html lang=en>
 <head>
     <meta charset=utf-8 />
-    <title>splitdoc</title>
-    <script src="../../console/console.js"></script>
-    <!-- <script src=http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js></script> -->
-    <!-- <script src="../../jquery.js"</script> -->
+    <title>SplitDoc</title>
     <script src="../splitdoc.js"></script>
 </head>
 
 <body>
-    <h1><a href="http://github.com/premasagar/mishmash/tree/master/splitdoc/">splitdoc</a></h1>
+    <h1><a href="http://github.com/premasagar/mishmash/tree/master/splitdoc/">SplitDoc</a></h1>
+    
+    <p><strong><a href="http://github.com/premasagar/mishmash/tree/master/splitdoc/">SplitDoc</a></strong> is a simple helper JavaScript function that converts, or generates, JavaScript objects that represent the essential building blocks of an HTML document.</p>
+    
+    <p>It was initially written for <a href="https://github.com/premasagar/sqwidget">Sqwidget</a>, where a JavaScript widget may be created with anything from a full HTML document, to a tiny fragment of HTML, and SplitDoc fills in the rest.</p>
     
     <h2>Example usage</h2>
 <pre><code>
-    // return a blank HTML document boilerplate, as an object
+    // A blank HTML document boilerplate, as an object:
     splitdoc();
-    // this returns {doctype:"&lt;!doctype html>",htmlAttr:"",headAttr:"",headContents:"&lt;meta charset=utf-8>&lt;title>&lt;/title>",charset:"utf-8",title:"",bodyAttr:"",bodyContents:""}
+    // {doctype:"&lt;!doctype html>",htmlAttr:"",headAttr:"",headContents:"&lt;meta charset=utf-8>&lt;title>&lt;/title>",charset:"utf-8",title:"",bodyAttr:"",bodyContents:""}
     
-    // return a blank HTML document boilerplate, as a string
-    splitdoc() + '';
-    splitdoc().toString(); // this is identical to the line above
-    // this returns '&lt;!doctype html>&lt;html>&lt;head>&lt;meta charset=utf-8>&lt;title>&lt;/title>&lt;/head>&lt;body>&lt;/body>&lt;/html>'
+    // A blank HTML document boilerplate, as a string:
+    splitdoc() + "";
+    splitdoc().toString(); // these two lines are identical
+    // "&lt;!doctype html>&lt;html>&lt;head>&lt;meta charset=utf-8>&lt;title>&lt;/title>&lt;/head>&lt;body>&lt;/body>&lt;/html>"
     
-    // Examples of HTML fragments that are converted to full HTML documents
-    splitdoc('hello world');
-    splitdoc('&lt;p>blah&lt;/p>');
-    splitdoc('&lt;body>&lt;p>blah&lt;/p>&lt;/body>');
-    ...
-    splitdoc('&lt;head>&lt;meta charset=utf-8>&lt;title>foo&lt;/title>&lt;body>&lt;p>blah&lt;/p>&lt;/body>&lt;/head>');
-    splitdoc('&lt;!doctype html>&lt;head>&lt;meta charset=utf-8>&lt;title>foo&lt;/title>&lt;body>&lt;p>blah&lt;/p>&lt;/body>&lt;/head>');
+    // HTML fragments are converted to full HTML documents:
+    splitdoc("hello world");
+    splitdoc("&lt;p>blah&lt;/p>");
+    splitdoc("&lt;body>&lt;p>blah&lt;/p>&lt;/body>");
     
-    // Optional defaults
-    splitdoc('&lt;p>blah&lt;/p>, {doctype:'&lt;!doctype html>', title:'foo', charset:'utf-8', charsetmeta:'&lt;meta charset="utf-8">'});
+    // The &lt;head> and/or doctype can be included:
+    splitdoc("&lt;head>&lt;meta charset=utf-8>&lt;title>foo&lt;/title>&lt;body>&lt;p>blah&lt;/p>&lt;/body>&lt;/head>");
+    splitdoc("&lt;!doctype html>&lt;head>&lt;meta charset='utf-8'>&lt;title>foo&lt;/title>&lt;body>&lt;p>blah&lt;/p>&lt;/body>&lt;/head>");
+    
+    // Optional defaults:
+    splitdoc("&lt;p>blah&lt;/p>", {
+        doctype:"&lt;!doctype html>",
+        title:"foo",
+        charset:"utf-8",
+        charsetmeta:"&lt;meta charset="utf-8">"
+    });
 </code></pre>
 </body>
 </html>
