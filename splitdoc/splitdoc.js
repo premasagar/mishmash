@@ -56,8 +56,6 @@
 
 var splitdoc = (function(){
     "use strict";
-
-    var exports = {};
     
     function trim(str){
         return str.replace(/^[\0\t\n\v\f\r\s]+|[\0\t\n\v\f\r\s]+$/g, ""); // match the full set of whitespace characters
@@ -113,12 +111,12 @@ var splitdoc = (function(){
                         bodyDefault || "" : // then bodyContents is set to default value or blank
                         html // if not, then assume the whole HTML string is to be the contents of the body
             );
-        
+
         if (!titleMatch){
             headContents = "<title>" + titleDefault + "</title>" + headContents;
         }
         if (!charsetMatch){
-            headContents = charsetTag + headContents ;
+            headContents = charsetTag + headContents;
         }
         
         // document reference object
@@ -156,11 +154,11 @@ var splitdoc = (function(){
         }
     };
     
-    function splitdoc(html, options){
-        return new Splitdoc(html, options);
-    }
+    /////
     
-    return (exports.splitdoc = splitdoc);
+    return function(html, options){
+        return new Splitdoc(html, options);
+    };
 }());
 
 /*jslint white: false, onevar: true, undef: true, nomen: true, regexp: false, plusplus: true, bitwise: true, newcap: true, maxerr: 50, indent: 4 */
