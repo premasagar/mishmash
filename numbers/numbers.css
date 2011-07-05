@@ -1,0 +1,57 @@
+body {
+	font-size:100%;
+	margin:0;
+	padding:0;
+	background-color:black;
+	color:white;
+	font-family:courier, monospace;
+}
+input {
+	background-color:black;
+	color:white;
+	border:1px solid white;
+}
+input[type=text]{
+	width:2.5em;
+	padding:0 0.2em;
+}
+input[type=button]{
+	color:black;
+	background-color:white;
+	border:none;
+}
+
+#numbers {
+	list-style-type: none;
+	/* border-top:1px solid black;
+	border-left:1px solid black; */
+	padding:0;
+	margin:0;
+	font-family: courier, monospace;
+	font-size:1em;
+	width:36em;
+}
+#numbers li {
+	float:left;
+	width:1em;
+	height:1em;
+	line-height:1em;
+	/*outline:1px solid #666;*/
+	text-align:center;
+	margin:0;
+	overflow:hidden;
+	cursor:help;
+}
+#numbers .prime {
+	background-color:#300 !important;
+}
+/* #numbers .f6 {
+	background-color:palegreen;
+} */
+#numbers .perfect {
+	outline:1px solid #ff3;
+	position:relative;
+}
+/* #numbers .abundant {
+	background-color:#99f;
+} */

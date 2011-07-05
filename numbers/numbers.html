@@ -1,0 +1,19 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Numbers</title>
+<link type="text/css" rel="stylesheet" href="numbers.css" media="screen" />
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script> -->
+<script type="text/javascript" src="../jquery.min.js"></script>
+</head>
+
+<body>
+<div id="container">
+<label for="col-width">Width:</label><input type="text" name="col-width" id="col-width" />
+<input type="button" value="Go" onclick="$('#numbers').css({width: $('#col-width').val() + 'em'});" />
+<p id="report"><span id="completed">0</span>% complete, in <span id="time">0</span> seconds</p>
+</div>
+<script type="text/javascript" src="numbers.js"></script>
+</body>
+</html>
