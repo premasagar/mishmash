@@ -31,7 +31,6 @@ var Cache = (function(window){
             
     /////
     
-    
     // Is localStorage available? If always known to exist, then this block may be removed, and the line above changed to: localStorage = window.localStorage;
     try {
         localStorage = window.localStorage;
@@ -45,18 +44,19 @@ var Cache = (function(window){
                 
             p.set = p.remove = function(){ return this; };
             p.get = p.wrapper = p.time = function(){};
-            p.localStorage = false;
+            // Set `localStorage` flag on both instances and class
+            p.localStorage = Mock.localStorage = false;
             return Mock;
         }());
     }
     
-    
     /////
-    
         
     function Cache(namespace){
         this.prefix = namespace ? namespace + "." : "";
     }
+    Cache.localStorage = true;
+
     Cache.prototype = {
         localStorage: true,
         
@@ -81,7 +81,7 @@ var Cache = (function(window){
         
         time: function(key){
             var wrapper = this.wrapper(key);
-            return wrapper ? JSON.parse(wrapper).t : wrapper;
+            return wrapper ? wrapper.t : wrapper;
         },
         
         remove: function(key){
