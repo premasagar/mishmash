@@ -81,7 +81,7 @@ Example:
 
 ### cache.time(key)
 
-Get the timestamp of the time the key was last cached, according to the local device.
+Get the Unix timestamp (in milliseconds) for when the key was last cached, according to the local device.
 
 Returns the time the data was cached
 
