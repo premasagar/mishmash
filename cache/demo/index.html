@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8 />
+    <title>Demo | Cache.js | Mishmash | Premasagar</title>
+    <style>
+      .result {
+        float:right;
+        width:30%;
+        padding:0 10px;
+        background:#ddd;
+      }
+    </style>
+</head>
+
+<body>
+    <h1><a href="http://github.com/premasagar/mishmash/tree/master/cache/">Demo | Cache.js | Mishmash | Premasagar</a></h1>
+
+    <div class="demo">
+
+        <h2>Cache</h2>
+        
+        <code>var cache = new Cache();</code>
+
+        <div class="result">
+          <h2>Result</h2>
+          <pre></pre>
+        </div>
+
+        <h3>cache.set();</h3>
+        <div class="input">
+          <label for="cache-set-key">
+            cache Key:
+            <input type="text" name="cache-set-key" id="cache-set-key" />
+          </label>
+        </div>
+        <div class="input">
+          <label for="cache-set-value">
+            cache Value:
+            <input type="text" name="cache-set-value" id="cache-set-value" />
+          </label>
+          <input type="button" data-action="set" value="Set cache" />
+        </div>
+
+        <h3>cache.get();</h3>
+        <div class="input">
+          <label for="cache-get-key">
+            cache Key:
+            <input type="text" name="cache-get-key" id="cache-get-key" />
+          </label>
+          <input type="button" data-action="get" value="Get cache" />
+        </div>
+        
+        
+        <h3>cache.remove();</h3>
+        <div class="input">
+          <label for="cache-remove-key">
+            cache Key:
+            <input type="text" name="cache-remove-key" id="cache-remove-key" />
+          </label>
+          <input type="button" data-action="remove" value="Remove from cache" />
+        </div>
+        
+        
+        <h3>cache.time();</h3>
+        <div class="input">
+          <label for="cache-time-key">
+            cache Key:
+            <input type="text" name="cache-time-key" id="cache-time-key" />
+          </label>
+          <input type="button" data-action="time" value="Get cache time" />
+        </div>
+    </div>
+      
+      
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script src="../cache.js"></script>
+    <script>
+        var cache = new Cache("cache"),
+            $result = $(".result pre"),
+            $btn, key, value;
+            
+        $("input[type='button']").bind("click", function(e){
+          
+          e.preventDefault();
+          key = value = ret = undefined;  // reset each click
+          $result.html("");               // empty
+          $btn = $(this);
+          
+          switch($btn.data("action")) {
+
+            case "set":
+              key = $("#cache-set-key").val();
+              value = $("#cache-set-value").val();
+              if (key.length > 0 && value.length > 0) {
+                cache.set(key, value);
+                $result.html("set <em>"+key+"</em> to '"+value+"'");
+              }
+            break;
+
+
+            case "get":
+              key = $("#cache-get-key").val();
+              if (key.length > 0) {
+                ret = cache.get(key);
+                $result.html("<em>"+key+"</em> = '"+ret+"'");
+              }
+            break;
+
+
+            case "remove":
+              key = $("#cache-remove-key").val();
+              if (key.length > 0) {
+                ret = cache.remove(key);
+                $result.html("<em>"+key+"</em> removed");
+              }
+            break;
+
+
+            case "time":
+              key = $("#cache-time-key").val();
+              if (key.length > 0) {
+                ret = cache.time(key);
+                $result.html(ret);
+              }
+            break;
+          }
+        });
+    </script>
+</body>
+</html>
