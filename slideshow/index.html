@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Slideshow</title>
+    
+    <script>
+        // Console logging, for development
+        window.O = function(){
+            if (window.console){
+                window.console.log.apply(window.console, arguments);
+            }
+        };
+    </script>
+  </head>
+
+  <body>
+    <div class="slideshow" style="width:200px; height:200px;"></div>
+    
+    <script src="../jquery.min.js"></script>
+    <script src="slideshow.js"></script>
+    <script src="flickr.js"></script>
+    <script>
+        var flickrSearchOptions = {
+            // Use any Flickr search options:
+            //  http://www.flickr.com/services/api/flickr.photos.search.html
+            user_id: "54304913@N00",
+            sort: "interestingness-desc",
+            safe_search: 1,
+            per_page: 500
+        };
+        
+        // Flickr API key
+        flickr.key = "7846550a7f8e8fe8ae2f1b9d301dd7b6";
+    
+        flickr.search(flickrSearchOptions, function(rsp){
+            if (!rsp || rsp.stat !== "ok"){
+                // Ooops. No response back from Flickr
+                jQuery("body").trigger("error.slideshow", rsp, flickrOptions);
+                return;
+            }
+            
+            var urls = jQuery.map(rsp.photos.photo, function(photo){
+                    return flickr.src(photo);
+                }),
+                target = ".slideshow",
+                options = {
+                    displayDuration: 6.18, // (this is the default option)
+                    transitionDuration: 1.62, // (this is the default option)
+                    easing: "ease-in", // (this is the default option)
+                    random: true // (`false` is the default option)
+                },
+                mySlideshow = slideshow(urls, target, options),
+                originalWidth, originalHeight, isFullScreen;
+                
+            mySlideshow.container.on("click", function(){
+                if (!isFullScreen){
+                    originalWidth = mySlideshow.container.width();
+                    originalHeight = mySlideshow.container.height();
+                    
+                    mySlideshow.container.css({
+                        position: "absolute",
+                        top: 0,
+                        left: 0
+                    });
+                    mySlideshow.resize("100%", "100%");
+                }
+                else {
+                    mySlideshow.container.css({
+                        position: "relative",
+                        top: "auto",
+                        left: "auto"
+                    });
+                    mySlideshow.resize(originalWidth, originalHeight);
+                }
+                isFullScreen = !isFullScreen;
+            });
+                
+            // for debugging
+            window.mySlideshow = mySlideshow;
+        });
+    </script>
+  </body>
+</html>
