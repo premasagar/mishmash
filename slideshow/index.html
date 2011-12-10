@@ -45,36 +45,14 @@
                 }),
                 target = ".slideshow",
                 options = {
-                    displayDuration: 6.18, // (this is the default option)
-                    transitionDuration: 1.62, // (this is the default option)
-                    easing: "ease-in", // (this is the default option)
                     random: true // (`false` is the default option)
                 },
-                mySlideshow = slideshow(urls, target, options),
-                originalWidth, originalHeight, isFullScreen;
+                mySlideshow = slideshow(urls, target, options);
                 
             mySlideshow.container.on("click", function(){
-                if (!isFullScreen){
-                    originalWidth = mySlideshow.container.width();
-                    originalHeight = mySlideshow.container.height();
-                    
-                    mySlideshow.container.css({
-                        position: "absolute",
-                        top: 0,
-                        left: 0
-                    });
-                    mySlideshow.resize("100%", "100%");
-                }
-                else {
-                    mySlideshow.container.css({
-                        position: "relative",
-                        top: "auto",
-                        left: "auto"
-                    });
-                    mySlideshow.resize(originalWidth, originalHeight);
-                }
-                isFullScreen = !isFullScreen;
+                mySlideshow.toggleFullscreen();
             });
+            mySlideshow.container.css("cursor", "pointer");
                 
             // for debugging
             window.mySlideshow = mySlideshow;

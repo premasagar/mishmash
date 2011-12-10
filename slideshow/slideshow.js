@@ -20,15 +20,20 @@
     * Use onload/onerror events, in case of long latency for image load
 */
 
-var slideshow = (function(window, jQuery){
+var slideshow = (function(window, document, jQuery){
     "use strict";
 
     var defaults = { // DEFAULT SETTINGS
-        displayDuration: 6.18,
-        transitionDuration: 1.62,
-        easing: "ease-in",
-        random: false
-    };
+            displayDuration: 10,
+            transitionDuration: 3.82,
+            resizeDuration: 0.16,
+            transitionEasing: "ease-in",
+            resizeEasing: "ease-in",
+            random: false
+        },
+        $window = jQuery(window),
+        $document = jQuery(document);
+        
         
     function randomOrder(){
         return Math.round(Math.random()) -0.5;
@@ -46,6 +51,56 @@ var slideshow = (function(window, jQuery){
             ("-khtml-" + prop) in imgStyle;
     }
     
+    function requestFullScreen(elem){
+        if (elem.requestFullScreen) {  
+          elem.requestFullScreen();  
+        }
+        else if (elem.mozRequestFullScreen) {  
+          elem.mozRequestFullScreen();  
+        }
+        else if (elem.webkitRequestFullScreen) {  
+          elem.webkitRequestFullScreen();  
+        }
+        else if (elem.oRequestFullScreen) {  
+          elem.oRequestFullScreen();  
+        }
+        else if (elem.msRequestFullScreen) {  
+          elem.msRequestFullScreen();  
+        }
+        else if (elem.khtmlRequestFullScreen) {  
+          elem.khtmlRequestFullScreens();  
+        }
+        else {
+            return false;
+        }
+        return true;
+    }
+    
+    function cancelFullScreen(elem){
+        if (document.cancelFullScreen) {  
+          document.cancelFullScreen();  
+        }
+        else if (document.mozCancelFullScreen) {  
+          document.mozCancelFullScreen();  
+        }
+        else if (document.webkitCancelFullScreen) {  
+          document.webkitCancelFullScreen();  
+        }
+        else if (document.oCancelFullScreen) {  
+          document.oCancelFullScreen();  
+        }
+        else if (document.msCancelFullScreen) {  
+          document.msCancelFullScreen();  
+        }
+        else if (document.khtmlCancelFullScreen) {  
+          document.khtmlCancelFullScreen();  
+        }
+        else {
+            return false;
+        }
+        return true;
+    }
+    
     /////
     
     function slideshow(items, target, options){
@@ -61,7 +116,9 @@ var slideshow = (function(window, jQuery){
             options: options,
             displayDuration: options.displayDuration || defaults.displayDuration,
             transitionDuration: options.transitionDuration || defaults.transitionDuration,
-            easing: options.easing || defaults.easing,
+            resizeDuration: options.resizeDuration || defaults.resizeDuration,
+            transitionEasing: options.transitionEasing || defaults.transitionEasing,
+            resizeEasing: options.transitionEasing || defaults.transitionEasing,
             random: options.random || defaults.random,
             namespace: "slideshow-" + Math.round(Math.random() * 1000),
             supportsTransitions: checkSupportsTransitions(),
@@ -105,20 +162,38 @@ var slideshow = (function(window, jQuery){
             },
             
             addStyles: function(){
-                var prop = "transition:opacity " + this.transitionDuration + "s " + this.easing + ";";
-
+                // TODO: include width and height in transition
+                var containerSelector = "." + this.namespace,
+                    imgSelector = containerSelector + " > img";
+                
+                function cssExtensions(property){
+                    return property +
+                        "-webkit-" + property +
+                        "-moz-" + property +
+                        "-o-" + property +
+                        "-ms-" + property +
+                        "-khtml-" + property;
+                }
+                
                 jQuery("head")
                     .append("<style>" +
-                        "." + this.namespace + " img{" + 
-                            "position:absolute;top:0;left:0;opacity:1;" +
-                            prop +
-                            "-webkit-" + prop +
-                            "-moz-" + prop +
-                            "-o-" + prop +
-                            "-ms-" + prop +
-                            "-khtml-" + prop +
+                        containerSelector + "{" +
+                            "position:relative;left:0;top:0;overflow:hidden;" +
+                            cssExtensions("transition-property:width,height;") +
+                            cssExtensions("transition-duration:" + this.transitionDuration + "s," + this.resizeDuration + "s," + this.resizeDuration + "s;") +
+                            cssExtensions("transition-timing-function:" + this.transitionEasing + "," + this.resizeEasing + "," + this.resizeEasing + ";") +
                         "}" +
-                        "." + this.namespace + " img.transition{opacity:0;}" +
+                        
+                        imgSelector + "{" +
+                            "position:absolute;left:0;top:0;opacity:1;" +
+                            cssExtensions("transition-property:opacity,width,height,left,top;") +
+                            cssExtensions("transition-duration:" + this.transitionDuration + "s," + this.resizeDuration + "s," + this.resizeDuration + "s," + this.resizeDuration + "s," + this.resizeDuration + "s;") +
+                            cssExtensions("transition-timing-function:" + this.transitionEasing + "," + this.resizeEasing + "," + this.resizeEasing + ";") +
+                        "}" +
+                        
+                        imgSelector + ".transition" + "{" +
+                            "opacity:0; " +
+                        "}" +
                     "</style>");
                 
                 return this;
@@ -129,34 +204,95 @@ var slideshow = (function(window, jQuery){
                 return this;
             },
             
-            resize: function(width, height){
-                this.container.width(width);
-                this.container.height(height);
-                return this.cacheContainerSize();
+            _isFullscreen: false,
+            
+            isFullscreen: function(){
+                return this._isFullscreen;
             },
             
-            cacheContainerSize: function(){
-                this.containerWidth = this.container.width();
-                this.containerHeight = this.container.height();
+            fullscreen: function(start){
+                var slideshow = this,
+                    container = this.container;
+                start === false  || (start = true);
+
+                // Go fullscreen
+                if (start){
+                    this._isFullscreen = true;
+                    this.cacheSizes();
+                    
+                    this.originalWidth = this.width;
+                    this.originalHeight = this.height;
+                
+                    container.css({
+                        position: "absolute"
+                    });
+                    
+                    this.resize(this.screenWidth, this.screenHeight);
+                    
+                    if (requestFullScreen(container[0])){
+                        window.setTimeout(function(){
+                            slideshow.cacheSizes();
+                            slideshow.resize(slideshow.screenWidth, slideshow.screenHeight);
+                        }, 500);
+                    }
+                }
+                
+                // Revert
+                else {
+                    this._isFullscreen = false;
+                    this.container.css({
+                        position: "relative"
+                    });
+                    this.resize(this.originalWidth, this.originalHeight);
+                    cancelFullScreen();
+                }
+                return this;
+            },
+            
+            toggleFullscreen: function(){
+                return this.fullscreen(!this.isFullscreen());
+            },
+            
+            resize: function(width, height){
+                this.container
+                    .width(width)
+                    .height(height);
+                    
+                return this.cacheSizes(width, height)
+                    .resetImageSizes();
+            },
+            
+            resetImageSizes: function(){
+                var slideshow = this,
+                    isFullScreen = this.isFullscreen();
+                
+                jQuery(this.newImage).add(this.oldImage)
+                    .each(function(i, img){
+                        slideshow.positionImage(jQuery(img));
+                    });
+                    
+                return this;
+            },
+            
+            cacheSizes: function(width, height){
+                this.width = typeof width !== "undefined" ? width : this.container.width();
+                this.height = typeof height !== "undefined" ? height : this.container.height();
+                this.screenWidth = $window.width();
+                this.screenHeight = $window.height();
                 return this;
             },
             
             init: function(){
                 var slideshow = this;
-                this.showing = 0;
                 
+                this.showing = 0;
                 this.container
                     .addClass(this.namespace)
-                    .css({
-                        position:"relative",
-                        overflow:"hidden"
-                    });
-                    
-                this.container.add(window).on("resize", this.throttle(function(){
-                    slideshow.cacheContainerSize();
-                }, 250, true));
-                    
-                this.cacheContainerSize();
+                    .add(window).on("resize", this.throttle(function(){
+                        slideshow
+                            .cacheSizes()
+                            .resetImageSizes();
+                    }, 250, true));
                 
                 // Randomise images?
                 if (this.random){
@@ -166,7 +302,8 @@ var slideshow = (function(window, jQuery){
                 return this
                     .clear()
                     .addStyles()
-                    .trigger("init")
+                    .cacheSizes()
+                    .trigger("ready")
                     .start();
             },
             
@@ -274,30 +411,34 @@ var slideshow = (function(window, jQuery){
             },
             
             positionImage: function(img){
-                // TODO: cache container dimensions, but refresh cache on resize
-                var containerWidth = this.containerWidth,
-                    containerHeight = this.containerWidth,
+                var width = this.width,
+                    height = this.height,
                     imgNode = img[0],
                     imgWidth = imgNode.width,
                     imgHeight = imgNode.height,
-                    diffWidth = containerWidth - imgWidth,
-                    diffHeight = containerHeight - imgHeight,
-                    factor, modified;
+                    diffWidth = width - imgWidth,
+                    diffHeight = height - imgHeight,
+                    factor, modified, imgLeft, imgTop;
+                    
+                // Store original dimensions
+                if (!img.data("originalWidth")){
+                    img.data({originalWidth: imgWidth, originalHeight: imgHeight});
+                }
                 
                 // If either the image width or height is smaller than the container
                 if (diffWidth > 0 || diffHeight > 0){
                     // Boost the image width
                     if (diffWidth > diffHeight){
-                        factor = containerWidth / imgWidth;
-                        imgWidth = containerWidth;
+                        factor = width / imgWidth;
+                        imgWidth = width;
                         
                         // Change the image height to keep the same aspect ratio
                         imgHeight *= factor;
                     }
                     // Boost the image height
                     else {
-                        factor = containerHeight / imgHeight;
-                        imgHeight = containerHeight;
+                        factor = height / imgHeight;
+                        imgHeight = height;
                         
                         // Change the image width to keep the same aspect ratio
                         imgWidth *= factor;
@@ -309,13 +450,13 @@ var slideshow = (function(window, jQuery){
                 else if (diffWidth < 0 && diffHeight < 0){
                     // Shrink the image width
                     if (diffWidth > diffHeight){
-                        imgHeight = (imgHeight / imgWidth) * containerWidth;
-                        imgWidth = containerWidth;
+                        imgHeight = (imgHeight / imgWidth) * width;
+                        imgWidth = width;
                     }
                     // Shrink the image height
                     else {
-                        imgWidth = (imgWidth / imgHeight) * containerHeight;
-                        imgHeight = containerHeight;
+                        imgWidth = (imgWidth / imgHeight) * height;
+                        imgHeight = height;
                     }
                     modified = true;
                 }
@@ -330,10 +471,15 @@ var slideshow = (function(window, jQuery){
                     });
                 }
                 
+                imgLeft = (width - imgWidth) / 2;
+                imgTop = (height - imgHeight) / 2;
+                
                 img.css({
-                    left:(containerWidth - imgWidth) / 2,
-                    top: (containerHeight - imgHeight) / 2
+                    left:imgLeft,
+                    top:imgTop
                 });
+                
+                //O("positionImage", imgWidth, imgHeight, imgLeft, imgTop, img, img[0].src);
                 
                 return this;
             },
@@ -351,7 +497,7 @@ var slideshow = (function(window, jQuery){
                 return this.trigger("stop");
             },
             
-            toggle: function(){
+            togglePlay: function(){
                 return this.active ?
                     this.stop() : this.start();
             },
@@ -366,4 +512,4 @@ var slideshow = (function(window, jQuery){
     }
     
     return slideshow;
-}(window, jQuery));
+}(window, document, jQuery));
