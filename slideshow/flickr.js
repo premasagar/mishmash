@@ -17,8 +17,8 @@ var flickr = {
     },
     
     // `size` is any of mstzb, or omitted
-    src: function(photo){
-        var size = photo.size ? "_" + photo.size : "";
+    src: function(photo, size){
+        size = size ? "_" + size : "";
         return "http://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + size + ".jpg"
     },
     

@@ -17,46 +17,134 @@
   <body>
     <div class="slideshow" style="width:200px; height:200px;"></div>
     
-    <script src="../jquery.min.js"></script>
+    <script src="../jquery.js"></script>
     <script src="slideshow.js"></script>
     <script src="flickr.js"></script>
+    
     <script>
-        var flickrSearchOptions = {
-            // Use any Flickr search options:
-            //  http://www.flickr.com/services/api/flickr.photos.search.html
-            user_id: "54304913@N00",
-            sort: "interestingness-desc",
-            safe_search: 1,
-            per_page: 500
-        };
+        // Use any Flickr search options:
+        //  http://www.flickr.com/services/api/flickr.photos.search.html
+        var flickrSearch1 = {
+                user_id: "54304913@N00",
+                sort: "interestingness-desc",
+                per_page: 500
+            },
+            flickrSearch2 = {
+                user_id: "54304913@N00",
+                sort: "date-posted-desc",
+                per_page: 500
+            };
         
         // Flickr API key
         flickr.key = "7846550a7f8e8fe8ae2f1b9d301dd7b6";
     
-        flickr.search(flickrSearchOptions, function(rsp){
-            if (!rsp || rsp.stat !== "ok"){
-                // Ooops. No response back from Flickr
-                jQuery("body").trigger("error.slideshow", rsp, flickrOptions);
-                return;
-            }
+        jQuery
+            .when(flickr.search(flickrSearch1), flickr.search(flickrSearch2))
+            .then(function(rsp1, rsp2){
+                if (rsp1[0].stat !== "ok" || rsp2[0].stat !== "ok"){
+                    console.log(rsp1, rsp2);
+                    throw "Flickr API error";
+                }
             
-            var urls = jQuery.map(rsp.photos.photo, function(photo){
-                    return flickr.src(photo);
-                }),
-                target = ".slideshow",
-                options = {
-                    random: true // (`false` is the default option)
-                },
-                mySlideshow = slideshow(urls, target, options);
+                var photos = rsp1[0].photos.photo.concat(rsp2[0].photos.photo),
+                    urls = jQuery.map(photos, function(photo){
+                        return function(){
+                            var size, w, h, max;
+                            
+                            if (mySlideshow){
+                                w = mySlideshow.width;
+                                h = mySlideshow.height;
+                                max = Math.max(w, h);
+                                
+                                // Flickr photo sizes: http://www.flickr.com/services/api/misc.urls.html
+                                if (max < 75){
+                                    size = "s"; // square
+                                }
+                                else if (max < 100){
+                                    size = "t"; // thumbnail
+                                }
+                                else if (max < 240){
+                                    size = "m"; // small
+                                }
+                                else if (max < 500){
+                                    size = ""; // medium
+                                }
+                                else if (max < 640){
+                                    size = "z"; // medium 640
+                                }
+                                else {
+                                    // TODO: not all photos have a large size - need to use API to determine
+                                    size = "b"; // large
+                                }
+                            }
+                            return flickr.src(photo, size);
+                        };
+                    }),
+                    target = ".slideshow",
+                    options = {
+                        random: true // (`false` is the default option)
+                    },
+                    mySlideshow = slideshow(urls, target, options);
                 
-            mySlideshow.container.on("click", function(){
-                mySlideshow.toggleFullscreen();
+                // http://softwareas.com/dynamic-favicons / http://ajaxify.com/run/favicon/favicon.js
+                var favicon = {
+                    docHead:document.getElementsByTagName("head")[0],
+                
+                    addLink: function(iconURL) {
+                      var link = document.createElement("link");
+                      link.type = "image/x-icon";
+                      link.rel = "shortcut icon";
+                      link.href = iconURL;
+                      this.removeLinkIfExists();
+                      this.docHead.appendChild(link);
+                    },
+
+                    removeLinkIfExists: function() {
+                      var links = this.docHead.getElementsByTagName("link");
+                      for (var i=0; i<links.length; i++) {
+                        var link = links[i];
+                        if (link.type=="image/x-icon" && link.rel=="shortcut icon") {
+                          this.docHead.removeChild(link);
+                          return; // Assuming only one match at most.
+                        }
+                      }
+                    }
+                };
+                
+                mySlideshow
+                    .on("fadeIn", function(event, img){
+                        favicon.addLink(img[0].src);
+                    })
+                    .on("fullscreen", function(event, isFullScreen){
+                        // TODO: on fullscreen, swap newImage / oldImage for high-res photo
+                        var currentSrc = mySlideshow.newImage[0].src,
+                            src = mySlideshow.items[mySlideshow.showing](),
+                            img = mySlideshow.image(src);
+                        
+                        if (img[0].complete){
+                            mySlideshow.newImage = img;
+                            mySlideshow.positionImage(img);
+                        }
+                        else {
+                            img.on("load", function(){
+                                // Check that newImage hasn't changed
+                                if (currentSrc.slice(0, -6) === src.slice(0, -6)){
+                                    mySlideshow.newImage = img;
+                                    mySlideshow.positionImage(img);
+                                }
+                            });
+                        }
+                    });
+                
+                mySlideshow.container
+                    .css("cursor", "pointer")
+                    .on("click", function(){
+                        mySlideshow.toggleFullscreen();
+                    });
+                    
+                // for debugging
+                window.mySlideshow = mySlideshow;
             });
-            mySlideshow.container.css("cursor", "pointer");
-                
-            // for debugging
-            window.mySlideshow = mySlideshow;
-        });
     </script>
   </body>
 </html>

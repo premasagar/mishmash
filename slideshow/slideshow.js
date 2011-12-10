@@ -26,13 +26,15 @@ var slideshow = (function(window, document, jQuery){
     var defaults = { // DEFAULT SETTINGS
             displayDuration: 10,
             transitionDuration: 3.82,
-            resizeDuration: 0.16,
+            resizeDuration: 0.38,
             transitionEasing: "ease-in",
             resizeEasing: "ease-in",
             random: false
         },
         $window = jQuery(window),
-        $document = jQuery(document);
+        $document = jQuery(document),
+        array = [],
+        slice = array.slice;
         
         
     function randomOrder(){
@@ -77,7 +79,10 @@ var slideshow = (function(window, document, jQuery){
     }
     
     function cancelFullScreen(elem){
-        if (document.cancelFullScreen) {  
+        if (document.exitFullscreen) {  
+          document.exitFullscreen();  
+        }
+        else if (document.cancelFullScreen) {  
           document.cancelFullScreen();  
         }
         else if (document.mozCancelFullScreen) {  
@@ -101,6 +106,10 @@ var slideshow = (function(window, document, jQuery){
         return true;
     }
     
+    function browserIsFullScreen(){
+        return document.fullScreen || document.webkitIsFullScreen || document.mozFullScreen || document.oFullScreen || document.msFullScreen || document.khtmlFullScreen || false;
+    }
+    
     /////
     
     function slideshow(items, target, options){
@@ -108,7 +117,6 @@ var slideshow = (function(window, document, jQuery){
         
         options || (options = {});
         api = {
-            _$slideshow: jQuery(this),
             showing: 0,
             waiting: false,
             items: items,
@@ -123,13 +131,19 @@ var slideshow = (function(window, document, jQuery){
             namespace: "slideshow-" + Math.round(Math.random() * 1000),
             supportsTransitions: checkSupportsTransitions(),
             
-            bind: function(){
-                this._$slideshow.bind.apply(this._$slideshow, arguments);
+            on: function(){
+                var args = slice.apply(arguments);
+                args[0] += "." + this.namespace;
+                
+                $document.on.apply($document, args);
                 return this;
             },
             
             trigger: function(){
-                this._$slideshow.trigger.apply(this._$slideshow, arguments);
+                var args = slice.apply(arguments);
+                args[0] += "." + this.namespace;
+                
+                $document.trigger.apply($document, args);
                 return this;
             },
             
@@ -204,10 +218,10 @@ var slideshow = (function(window, document, jQuery){
                 return this;
             },
             
-            _isFullscreen: false,
+            _isFullScreen: false,
             
-            isFullscreen: function(){
-                return this._isFullscreen;
+            isFullScreen: function(){
+                return this._isFullScreen;
             },
             
             fullscreen: function(start){
@@ -217,9 +231,17 @@ var slideshow = (function(window, document, jQuery){
 
                 // Go fullscreen
                 if (start){
-                    this._isFullscreen = true;
+                    this._isFullScreen = true;
+                    
+                    if (requestFullScreen(container[0])){
+                        window.setTimeout(function(){
+                            slideshow.resize(slideshow.screenWidth, slideshow.screenHeight);
+                        }, 500);
+                    }
+                    
                     this.cacheSizes();
                     
+                    // TODO: cache once at start? allow to be re-cached?
                     this.originalWidth = this.width;
                     this.originalHeight = this.height;
                 
@@ -228,29 +250,23 @@ var slideshow = (function(window, document, jQuery){
                     });
                     
                     this.resize(this.screenWidth, this.screenHeight);
-                    
-                    if (requestFullScreen(container[0])){
-                        window.setTimeout(function(){
-                            slideshow.cacheSizes();
-                            slideshow.resize(slideshow.screenWidth, slideshow.screenHeight);
-                        }, 500);
-                    }
                 }
                 
                 // Revert
                 else {
-                    this._isFullscreen = false;
+                    this._isFullScreen = false;
                     this.container.css({
                         position: "relative"
                     });
                     this.resize(this.originalWidth, this.originalHeight);
                     cancelFullScreen();
                 }
-                return this;
+                
+                return this.trigger("fullscreen", [start]);
             },
             
             toggleFullscreen: function(){
-                return this.fullscreen(!this.isFullscreen());
+                return this.fullscreen(!this.isFullScreen());
             },
             
             resize: function(width, height){
@@ -264,7 +280,7 @@ var slideshow = (function(window, document, jQuery){
             
             resetImageSizes: function(){
                 var slideshow = this,
-                    isFullScreen = this.isFullscreen();
+                    isFullScreen = this.isFullScreen();
                 
                 jQuery(this.newImage).add(this.oldImage)
                     .each(function(i, img){
@@ -280,31 +296,6 @@ var slideshow = (function(window, document, jQuery){
                 this.screenWidth = $window.width();
                 this.screenHeight = $window.height();
                 return this;
-            },
-            
-            init: function(){
-                var slideshow = this;
-                
-                this.showing = 0;
-                this.container
-                    .addClass(this.namespace)
-                    .add(window).on("resize", this.throttle(function(){
-                        slideshow
-                            .cacheSizes()
-                            .resetImageSizes();
-                    }, 250, true));
-                
-                // Randomise images?
-                if (this.random){
-                    this.randomize();
-                }
-                
-                return this
-                    .clear()
-                    .addStyles()
-                    .cacheSizes()
-                    .trigger("ready")
-                    .start();
             },
             
             image: function(src){
@@ -323,9 +314,12 @@ var slideshow = (function(window, document, jQuery){
                 
                 // add the new image
                 src = this.items[this.showing];
+                if (typeof src === "function"){
+                    src = src();
+                }
                 img = this.newImage = this.image(src);
                 
-                return this.trigger("loading", img);
+                return this.trigger("loading", [img]);
             },
             
             loop: function(){    
@@ -347,7 +341,7 @@ var slideshow = (function(window, document, jQuery){
                         // Couldn't load image, try the next one
                         // TODO: or retry in case of broken connection?
                         .on("error", function(){
-                            this.trigger("error", this.newImage);
+                            this.trigger("error", [this.newImage]);
                             slideshow.loadNext().loop();
                         });
                 }
@@ -356,7 +350,8 @@ var slideshow = (function(window, document, jQuery){
             },
             
             fadeOut: function(img){
-                var delay = this.transitionDuration * 1000;
+                var slideshow = this,
+                    delay = this.transitionDuration * 1000;
             
                 // start fading out, to reveal the image underneath
                 // CSS3 transitions
@@ -371,9 +366,14 @@ var slideshow = (function(window, document, jQuery){
                 // once faded out, remove the image
                 window.setTimeout(function(){
                     img.remove();
+                    slideshow.trigger("remove", [img]);
                 }, delay);
                 
-                this.trigger("fadeOut", img);
+                this.trigger("fadeOut", [img]);
+                
+                window.setTimeout(function(){
+                    slideshow.trigger("fadeIn", [slideshow.oldImage]);
+                }, delay * 0.5);
                 
                 // load the next image
                 if (this.active){
@@ -407,7 +407,7 @@ var slideshow = (function(window, document, jQuery){
                     }
                 }, this.displayDuration * 1000);
                 
-                return this.trigger("add", img);
+                return this.trigger("add", [img]);
             },
             
             positionImage: function(img){
@@ -478,10 +478,10 @@ var slideshow = (function(window, document, jQuery){
                     left:imgLeft,
                     top:imgTop
                 });
-                
+
                 //O("positionImage", imgWidth, imgHeight, imgLeft, imgTop, img, img[0].src);
                 
-                return this;
+                return this.trigger("position", [img]);
             },
             
             start: function start(){
@@ -505,6 +505,50 @@ var slideshow = (function(window, document, jQuery){
             clear: function clear(){
                 this.container.empty();
                 return this.trigger("clear");
+            },
+            
+            init: function(){
+                var slideshow = this;
+                
+                this.showing = 0;
+                this.container
+                    .addClass(this.namespace)
+                    .add(window).on("resize", this.throttle(function(){
+                        if (this.isFullScreen()){
+                            slideshow.fullscreen();
+                        }
+                        
+                        else {
+                            slideshow
+                                .cacheSizes()
+                                .resetImageSizes();
+                        }
+                    }, 250, true));
+                
+                $document.on("fullscreenchange mozfullscreenchange webkitfullscreenchange ofullscreenchange msfullscreenchange  khtmlfullscreenchange", function(){
+                    var slideshowIsFullscreen = slideshow.isFullScreen();
+                    
+                    if (browserIsFullScreen()){
+                        if (!slideshowIsFullscreen){
+                            slideshow.fullscreen();
+                        }
+                    }
+                    else if (slideshowIsFullscreen) {
+                        slideshow.fullscreen(false);
+                    }
+                });
+                
+                // Randomise images?
+                if (this.random){
+                    this.randomize();
+                }
+                
+                return this
+                    .clear()
+                    .addStyles()
+                    .cacheSizes()
+                    .trigger("ready")
+                    .start();
             }
         };
         
