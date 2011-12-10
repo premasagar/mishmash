@@ -226,7 +226,9 @@ var slideshow = (function(window, document, jQuery){
             
             fullscreen: function(start){
                 var slideshow = this,
-                    container = this.container;
+                    container = this.container,
+                    alreadyInFullscreen = this._isFullScreen;
+                    
                 start === false  || (start = true);
 
                 // Go fullscreen
@@ -241,10 +243,12 @@ var slideshow = (function(window, document, jQuery){
                     
                     this.cacheSizes();
                     
-                    // TODO: cache once at start? allow to be re-cached?
-                    this.originalWidth = this.width;
-                    this.originalHeight = this.height;
-                
+                    if (!alreadyInFullscreen){
+                        // TODO: cache once at start? allow to be re-cached?
+                        this.originalWidth = this.width;
+                        this.originalHeight = this.height;
+                    }
+                    
                     container.css({
                         position: "absolute"
                     });
