@@ -20,12 +20,15 @@ function extend(target /* , ...Any number of source objects, copied in turn ... 
 
 /////
 
+// Feed
 
 function Feed(url, callback, options){
     return this.load(url, callback, options);
 }
 
 //
+
+// Feed: PROTOTYPE
 
 Feed.prototype = {
     url: null,
@@ -57,6 +60,8 @@ Feed.prototype = {
 };
 
 //
+
+// Feed: STATIC METHODS
 
 extend(Feed, {
     loaded:false,
@@ -105,6 +110,7 @@ extend(Feed, {
 
 /////
 
+// EXAMPLE
 
 Feed.init()
     .ready(function(){
@@ -112,19 +118,16 @@ Feed.init()
             "http://dharmafly.com/feed",
             
             function(result){
-                var container = document.getElementById("content");
+                var container = document.getElementById("content"),
+                    entries, i, len;
             
                 console.log(result);
 
                 if (!result.error) {
-                    for (var i = 0; i < result.feed.entries.length; i++) {
-                        var entry = result.feed.entries[i];
-                        
-                        console.log(entry);
-                        
-                        var div = document.createElement("div");
-                        div.appendChild(document.createTextNode(entry.title));
-                        container.appendChild(div);
+                    entries = result.feed.entries;
+                    
+                    for (i=0, len=entries.length; i<len; i++){
+                        container.innerHTML += tim("entry", entries[i]);
                     }
                 }
             },
