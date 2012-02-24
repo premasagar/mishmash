@@ -22,7 +22,7 @@ var gh_widgets = (function(github){
                     html += '<ul class="github-repos">';
                     $.each(repos, function(){
                         html += '<li>' +
-                                    '<a rel="tag" href="' + this.url + '" title="' + this.name + ': ' + this.description + '">' + this.name + '</a>' +
+                                    '<a rel="tag" href="' + this.html_url + '" title="' + this.name + ': ' + this.description + '">' + this.name + '</a>' +
                                     '<p>' + this.description + '</p>' +
                                 '</li>';
                     });
