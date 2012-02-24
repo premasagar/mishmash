@@ -7,26 +7,26 @@
         .title {
             font-family:monospace;
         }
-        #github {
+        .github {
             font-family:monospace;
             font-weight:bold;
             background-color:#363;
             color:#cfc;
             width:16em;
         }
-        #github a {
+        .github a {
             color:red;
             text-decoration:none;
         }
-        #github a:hover {
+        .github a:hover {
             background-color:red;
             color:#363;
         }
-        #github ul {
+        .github ul {
             margin:0;
             padding:0;
         }
-        #github li {
+        .github li {
             list-style-type:none;
             padding:1.68em 1.68em 0.38em;
             margin:0;
@@ -36,13 +36,14 @@
 
 <body>
     <h1 class="title">$ github/premasagar</h1>
-    <div id=github></demo>
-    
+    <div class="github"></div>
+
     <script src="../../jquery.js"></script>
     <script src="../github.js"></script>
+    <script src="../github-widgets.js"></script>
     <script>
-        github.html('premasagar', 'repos', function(repos){
-            jQuery('#github').append(repos);
+        gh_widgets.html('premasagar', 'repos', function(repos){
+            jQuery('.github').append(repos);
         });
     </script>
 </body>
