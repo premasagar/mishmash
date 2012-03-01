@@ -17,17 +17,19 @@ var gh_widgets = (function(github){
             var toHtml;
             if (type === 'repos'){
                 toHtml = function(repos){
-                    var html = '';
 
-                    html += '<ul class="github-repos">';
-                    $.each(repos, function(){
-                        html += '<li>' +
-                                    '<a rel="tag" href="' + this.html_url + '" title="' + this.name + ': ' + this.description + '">' + this.name + '</a>' +
-                                    '<p>' + this.description + '</p>' +
-                                '</li>';
-                    });
-                    html += '</ul>';
-                    callback(html);
+                    var ul = '<ul class="github-repos">{{li}}</ul>',
+                        li = '<li>' +
+                                '<a rel="tag" href="{{html_url}}" title="{{name}} : {{description}}">{{name}}</a>' +
+                                '<br> {{description}}' +
+                             '</li>',
+                        template = '';
+
+                    for (var i = 0; i < repos.length; i++) {
+                        template += tim(li, repos[i]);
+                    };
+
+                    callback(tim(ul, {li:template}));
                 };
                 api.user(user).repos(toHtml);
             }
