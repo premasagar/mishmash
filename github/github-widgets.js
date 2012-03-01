@@ -1,17 +1,6 @@
 var gh_widgets = (function(github){
-    function getBy(enum, findProperty, findValue){
-        return jQuery.map(enum, function(el, i){
-            if (typeof el[findProperty] !== 'undefined'){
-                if (typeof findValue === 'undefined' ||
-                    el[findProperty] === findValue){
-                    return el;
-                }
-            }
-        });
-    }
 
     var api = github;
-
     var gh_widgets = {
         html:function(user, type, callback){
             var toHtml;
@@ -29,7 +18,7 @@ var gh_widgets = (function(github){
                     };
                     callback(tim(ul, {li:template}));
                 };
-                api().users(user).repos(toHtml);
+                api.users(user).repos(toHtml);
             }
         }
     };
