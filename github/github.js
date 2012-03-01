@@ -32,7 +32,7 @@ var github = (function(){
         user: function(user){
             return {
                 about: function(callback){
-                    github.user().user(callback);
+                    github.user(user).user(callback);
                 },
                 user: function(callback){
                     jQuery.getJSON(github.endpoint + 'users/' + user + '?callback=?', function(user){
@@ -69,7 +69,7 @@ var github = (function(){
         repo: function(user, reponame){
             return {
                 about: function(callback){
-                    github.repo().repo(callback);
+                    github.repo(user, reponame).repo(callback);
                 },
                 repo: function(callback){
                     jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '?callback=?', function(repo){
