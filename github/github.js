@@ -50,42 +50,42 @@ var github = (function(){
     github.endpoint = 'https://api.github.com/';
 
     github.users = function(user){
-            return {
-                about: function(callback){
-                    github.users(user).user(callback);
-                },
-                user: function(callback){
-                    jQuery.getJSON(github.endpoint + 'users/' + user + '?callback=?', function(user){
-                        callback(user.data);
-                    });
-                },
-                repos: function(callback){
-                    jQuery.getJSON(github.endpoint + 'users/' + user + '/repos?callback=?', function(repos){
-                        callback(repos.data);
-                    });
-                },
-                gists: function(callback){
-                    jQuery.getJSON(github.endpoint + 'users/' + user + '/gists?callback=?', function(gists){
-                        callback(gists.data);
-                    });
-                },
-                following: function(callback){
-                    jQuery.getJSON(github.endpoint + 'users/' + user + '/following?callback=?', function(users){
-                        expandUsers(users.data, callback);
-                    });
-                },
-                followers: function(callback){
-                    jQuery.getJSON(github.endpoint + 'users/' + user + '/followers?callback=?', function(users){
-                        expandUsers(users.data, callback);
-                    });
-                },
-                watched: function(callback){
-                    jQuery.getJSON(github.endpoint + 'users/' + user + '/watched?callback=?', function(repos){
-                        callback(repos.data);
-                    });
-                }
-            };
+        return {
+            about: function(callback){
+                github.users(user).user(callback);
+            },
+            user: function(callback){
+                jQuery.getJSON(github.endpoint + 'users/' + user + '?callback=?', function(user){
+                    callback(user.data);
+                });
+            },
+            repos: function(callback){
+                jQuery.getJSON(github.endpoint + 'users/' + user + '/repos?callback=?', function(repos){
+                    callback(repos.data);
+                });
+            },
+            gists: function(callback){
+                jQuery.getJSON(github.endpoint + 'users/' + user + '/gists?callback=?', function(gists){
+                    callback(gists.data);
+                });
+            },
+            following: function(callback){
+                jQuery.getJSON(github.endpoint + 'users/' + user + '/following?callback=?', function(users){
+                    expandUsers(users.data, callback);
+                });
+            },
+            followers: function(callback){
+                jQuery.getJSON(github.endpoint + 'users/' + user + '/followers?callback=?', function(users){
+                    expandUsers(users.data, callback);
+                });
+            },
+            watched: function(callback){
+                jQuery.getJSON(github.endpoint + 'users/' + user + '/watched?callback=?', function(repos){
+                    callback(repos.data);
+                });
+            }
         };
+    };
 
     github.repos = function(user, reponame){
         return {
