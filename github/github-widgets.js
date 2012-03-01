@@ -17,7 +17,6 @@ var gh_widgets = (function(github){
             var toHtml;
             if (type === 'repos'){
                 toHtml = function(repos){
-
                     var ul = '<ul class="github-repos">{{li}}</ul>',
                         li = '<li>' +
                                 '<a rel="tag" href="{{html_url}}" title="{{name}} : {{description}}">{{name}}</a>' +
@@ -28,10 +27,9 @@ var gh_widgets = (function(github){
                     for (var i = 0; i < repos.length; i++) {
                         template += tim(li, repos[i]);
                     };
-
                     callback(tim(ul, {li:template}));
                 };
-                api.user(user).repos(toHtml);
+                api().users(user).repos(toHtml);
             }
         }
     };
