@@ -134,14 +134,14 @@ var github = (function(){
 
             // Make new request, resolve returned promise and pass in the combined
             // data
-            jQuery.getJSON(clean(url) + '&callback=')
+            jQuery.getJSON(clean(resource.meta.Link[0][0]) + '&callback=?')
                 .then(function(newData){
-                    promise.resolve(merge(newData));
+                    deferred.resolve(merge(newData));
                 });
         }
 
         // Return promise
-        return promise.apply(function(){
+        return promise.always(function(){
 
         })
     };
