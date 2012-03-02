@@ -1,5 +1,6 @@
 # github.js
-- Implement a promise interface for resources
+- Add interface to Events
+- Revise / improve router for alternative github.js interface
 
 # github-widgets.js
 - Complete default templates
