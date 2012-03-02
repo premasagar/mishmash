@@ -122,7 +122,7 @@ var github = (function(){
 
         // Merge newly gathered data with previous
         var merge = function(newData){
-            return resources.data.concat(newData.data);
+            return resource.data.concat(newData.data);
         };
 
         // The url contains the previous callback query string, remove that.
