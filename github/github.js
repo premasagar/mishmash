@@ -11,35 +11,23 @@ var github = (function(){
         });
     }
 
-    function expandUsers(users, callback){
-        var userPromises = [],
-            expandedUsers = [];
-
-        jQuery.each(users, function(){
-            userPromises.push(jQuery.getJSON('https://api.github.com/users/' + this.login + '?callback=?'));
-        });
-        jQuery.when.apply(jQuery, userPromises)
-            .then(function(){
-                jQuery.each(arguments, function(){
-                    expandedUsers.push(this[0]['data']);
-                })
-                callback(expandedUsers);
-            });
-    }
+    // Github api entry point, handles routing.
+    // Returns a promise and can be passed a callback.
 
     var github = function(path, callback){
+        if(!path) return true;
         var tokens = path.split('/');
         switch(tokens[0]){
             case 'users' :
                 if(!tokens[2]) tokens[2] = 'about';
-                github[tokens[0]](tokens[1])[tokens[2]](function(data){
-                    callback(data);
+                return github[tokens[0]](tokens[1])[tokens[2]](function(resource){
+                    if(callback) callback(resource.data);
                 });
             break;
             case 'repos' :
                 if(!tokens[3]) tokens[3] = 'about';
-                github[tokens[0]](tokens[1], tokens[2])[tokens[3]](function(data){
-                    callback(data);
+                return github[tokens[0]](tokens[1], tokens[2])[tokens[3]](function(resource){
+                    if(callback) callback(resource.data);
                 });
             break;
             default :
@@ -47,72 +35,105 @@ var github = (function(){
         }
     };
 
+    // Github api end point
+
     github.endpoint = 'https://api.github.com/';
+
+    // Github api users resources. Methods return a promise and
+    // can be passed a callback.
 
     github.users = function(user){
         return {
             about: function(callback){
-                github.users(user).user(callback);
+                return github.users(user).user(callback);
             },
             user: function(callback){
-                jQuery.getJSON(github.endpoint + 'users/' + user + '?callback=?', function(user){
-                    callback(user.data);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '?callback=?');
+                return promise.always(callback);
             },
             repos: function(callback){
-                jQuery.getJSON(github.endpoint + 'users/' + user + '/repos?callback=?', function(repos){
-                    callback(repos.data);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '/repos?callback=?');
+                return promise.always(callback);
             },
             gists: function(callback){
-                jQuery.getJSON(github.endpoint + 'users/' + user + '/gists?callback=?', function(gists){
-                    callback(gists.data);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '/gists?callback=?');
+                return promise.always(callback);
             },
             following: function(callback){
-                jQuery.getJSON(github.endpoint + 'users/' + user + '/following?callback=?', function(users){
-                    expandUsers(users.data, callback);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '/following?callback=?');
+                return promise.always(callback);
             },
             followers: function(callback){
-                jQuery.getJSON(github.endpoint + 'users/' + user + '/followers?callback=?', function(users){
-                    expandUsers(users.data, callback);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '/followers?callback=?');
+                return promise.always(callback);
             },
             watched: function(callback){
-                jQuery.getJSON(github.endpoint + 'users/' + user + '/watched?callback=?', function(repos){
-                    callback(repos.data);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '/watched?callback=?');
+                return promise.always(callback);
+            },
+            'recieved_events/public': function(callback){
+                var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '/received_events/public?callback=?');
+                return promise.always(callback);
             }
         };
     };
 
+    // Github api repos resources. Methods return a promise and
+    // can be passed a callback.
+
     github.repos = function(user, reponame){
         return {
             about: function(callback){
-                github.repos(user, reponame).repo(callback);
+                return github.repos(user, reponame).repo(callback);
             },
             repo: function(callback){
-                jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '?callback=?', function(repo){
-                    callback(repo.data);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '?callback=?');
+                return promise.always(callback);
             },
             watchers: function(callback){
-                jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '/watchers?callback=?', function(users){
-                    expandUsers(users.data, callback);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '/watchers?callback=?');
+                return promise.always(callback);
             },
             commits: function(callback){
-                jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '/commits?callback=?', function(commits){
-                    callback(commits.data);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '/commits?callback=?');
+                return promise.always(callback);
             },
             languages: function(callback){
-                jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '/languages?callback=?', function(langs){
-                    callback(langs.data);
-                });
+                var promise = jQuery.getJSON(github.endpoint + 'repos/' + user + '/' + reponame + '/languages?callback=?');
+                return promise.always(callback);
             }
         };
+    };
+
+    // Utility method which can be passed a number of user resource objects and
+    // expands them to their full resource.
+    // Returns a promise which is resolved when all users are expanded, optionally
+    // one may also pass in a callback which is passed the expanded users.
+
+    github.getFullUsers = function(users, callback){
+        var userPromises = [],
+            expandedUsers = [],
+            deferred = jQuery.Deferred(),
+            master = deferred.promise();
+
+        jQuery.each(users, function(){
+            userPromises.push(jQuery.getJSON('https://api.github.com/users/' + this.login + '?callback=?'));
+        });
+
+        jQuery.when.apply(jQuery, userPromises)
+            .then(function(){
+                jQuery.each(arguments, function(){
+                    expandedUsers.push(this[0]['data']);
+                });
+                if(callback){
+                    callback(expandedUsers);
+                }
+                deferred.resolve(expandedUsers);
+            }, function(){
+                deferred.fail();
+            });
+
+        return master;
     };
 
     return github;
