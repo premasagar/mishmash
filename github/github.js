@@ -1,33 +1,23 @@
 var github = (function(){
 
-    function getBy(enum, findProperty, findValue){
-        return jQuery.map(enum, function(el, i){
-            if (typeof el[findProperty] !== 'undefined'){
-                if (typeof findValue === 'undefined' ||
-                    el[findProperty] === findValue){
-                    return el;
-                }
-            }
-        });
-    }
-
     // Github api entry point, handles routing.
     // Returns a promise and can be passed a callback.
 
     var github = function(path, callback){
-        if(!path) return true;
+
         var tokens = path.split('/');
+
         switch(tokens[0]){
             case 'users' :
                 if(!tokens[2]) tokens[2] = 'about';
-                return github[tokens[0]](tokens[1])[tokens[2]](function(resource){
-                    if(callback) callback(resource.data);
+                return github[tokens[0]](tokens[1])[tokens[2]](function(data){
+                    if(callback) callback(data);
                 });
             break;
             case 'repos' :
                 if(!tokens[3]) tokens[3] = 'about';
-                return github[tokens[0]](tokens[1], tokens[2])[tokens[3]](function(resource){
-                    if(callback) callback(resource.data);
+                return github[tokens[0]](tokens[1], tokens[2])[tokens[3]](function(data){
+                    if(callback) callback(data);
                 });
             break;
             default :
@@ -35,12 +25,14 @@ var github = (function(){
         }
     };
 
-    // Github api end point
+    // API end point
 
     github.endpoint = 'https://api.github.com/';
 
     // Github api users resources. Methods return a promise and
     // can be passed a callback.
+    //
+    // Usage: github.users(':user').about(function(data){})
 
     github.users = function(user){
         return {
@@ -72,14 +64,21 @@ var github = (function(){
                 return promise.always(callback);
             },
             'recieved_events/public': function(callback){
-                var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '/received_events/public?callback=?');
-                return promise.always(callback);
+                return github.users(user).recieved_events.public(callback);
+            },
+            recieved_events: {
+                public : function(callback){
+                    var promise = jQuery.getJSON(github.endpoint + 'users/' + user + '/received_events/public?callback=?');
+                    return promise.always(callback);
+                }
             }
         };
     };
 
     // Github api repos resources. Methods return a promise and
     // can be passed a callback.
+    //
+    // Usage: github.users(':user', ':repo').about(function(data){})
 
     github.repos = function(user, reponame){
         return {
@@ -104,6 +103,59 @@ var github = (function(){
             }
         };
     };
+
+    // Utility method for retrieving the next page of a resource
+
+    github.next = function(resource, callback){
+        var deferred = jQuery.Deferred(),
+            promise = deferred.promise();
+
+        // Checks if there is a next page to request
+        // TODO: Check if the internal condition check is CORRECT!
+        var hasNextPage = function(){
+            if(resource.meta.Link[0][1].rel === 'next' || resource.meta.Link[0][1].rel === 'first'){
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        // Merge newly gathered data with previous
+        var merge = function(data){
+            return jQuery.merge(resource.data, data);
+        };
+
+        // The url contains the previous callback query string, remove that.
+        var clean = function(url){
+            return url.split('?_=')[0] + '?page=' + url.split('&page=').pop();
+        };
+
+        if(hasNextPage()){
+
+            // Make new request, resolve returned promise and pass in the combined
+            // data
+            jQuery.getJSON(clean(url) + '&callback=')
+                .then(function(new){
+                    promise.resolve(merge(new));
+                });
+        }
+
+        // Return promise
+        return promise.apply(function(){
+
+        })
+    };
+
+    github.nextAll = function(resource, callback){
+        var deferred = jQuery.Deferred(),
+            master = deferred.promise();
+    }
+
+    // Utility method for filtering Event types in a Users public events
+
+    github.filterEvent = function(resource, by){
+
+    }
 
     // Utility method which can be passed a number of user resource objects and
     // expands them to their full resource.
@@ -135,6 +187,19 @@ var github = (function(){
 
         return master;
     };
+
+    // Utility method getBy
+
+    function getBy(enum, findProperty, findValue){
+        return jQuery.map(enum, function(el, i){
+            if (typeof el[findProperty] !== 'undefined'){
+                if (typeof findValue === 'undefined' ||
+                    el[findProperty] === findValue){
+                    return el;
+                }
+            }
+        });
+    }
 
     return github;
 }());
