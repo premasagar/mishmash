@@ -71,8 +71,8 @@
     }
 
     github.widget = function(path, template, callback){
-        github(path, function(data){
-            var html = defaultTemplates(path.split('/'), data);
+        github(path, function(resource){
+            var html = defaultTemplates(path.split('/'), resource.data);
             callback(html);
         });
     };
