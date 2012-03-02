@@ -135,8 +135,8 @@ var github = (function(){
             // Make new request, resolve returned promise and pass in the combined
             // data
             jQuery.getJSON(clean(url) + '&callback=')
-                .then(function(new){
-                    promise.resolve(merge(new));
+                .then(function(newData){
+                    promise.resolve(merge(newData));
                 });
         }
 
