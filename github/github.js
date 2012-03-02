@@ -141,9 +141,7 @@ var github = (function(){
         }
 
         // Return promise
-        return promise.always(function(){
-
-        })
+        return promise.always(callback);
     };
 
     github.nextAll = function(resource, callback){
