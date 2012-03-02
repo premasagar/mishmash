@@ -1,5 +1,6 @@
 # github.js
-- Add interface to Events
+- Support pagination
+- Support interface to Events
 - Revise / improve router for alternative github.js interface
 
 # github-widgets.js
