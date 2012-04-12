@@ -320,6 +320,8 @@ var github = (function(){
                         }
                     });
             }
+            // Recursion logic
+            that.page = 0;
             again();
             return utils.extend(resource, promise);
         }
