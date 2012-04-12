@@ -2,7 +2,7 @@
 
     // Augment the github api with the helper object
 
-    github.eventHelpers = {};
+    github.helpers = {};
 
     // http://developer.github.com/v3/events/types/
 
@@ -27,24 +27,29 @@
         'WatchEvent'
     ];
 
-    utils.each(EVENT_TYPES, function(val){
-        github.eventHelpers[val] = function(val) {
-            getEvents(val);
-        };
+    // Augment github.helper with the latestEvents object
+
+    github.helpers.latestEvents = {};
+
+    github.utils.each(EVENT_TYPES, function(val){
+        github.helpers.latestEvents[val] = function(user) {
+            getEvent(user, val);
+        }
     }, this);
 
-    function getEvents(event, perPage) {
+    function getEvent(user, event) {
+        var deferred = new github.utils.deferred(),
+            promise = deferred.promise();
+
         github.users(user).related('events')
+            .all()
             .pipe(function (resource) {
-                resource.data = github.util.filter(resource.data, function (item) {
-                    return (item.type === event);
+                resource.data = github.utils.filter(resource.data, function(item){
+                    return (item.type === eventFilter);
                 }, this);
-                return resource;
+                deferred.resolve(resource);
             });
+        return promise;
     }
 
-}(github))
-
-github.users(aaron).related('events').all().pipe(function (resource) {
-    return /*filtered*/
-});
+}(github));
