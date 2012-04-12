@@ -33,7 +33,7 @@
 
     github.utils.each(EVENT_TYPES, function(val){
         github.helpers.latestEvents[val] = function(user) {
-            getEvent(user, val);
+            return getEvent(user, val);
         }
     }, this);
 
@@ -45,7 +45,7 @@
             .all()
             .pipe(function (resource) {
                 resource.data = github.utils.filter(resource.data, function(item){
-                    return (item.type === eventFilter);
+                    return (item.type === event);
                 }, this);
                 deferred.resolve(resource);
             });
