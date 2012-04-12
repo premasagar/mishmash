@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8 />
+    <title>github api js helpers</title>
+</head>
+
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <!-- Github API script -->
+    <script src="../../lib/github.js"></script>
+    <!-- Github helper script -->
+    <script src="helpers.js"></script>
+    <script>
+        // Display recent events which only involve new repo watches
+
+        github.helpers.latestEvents.WatchEvent('aaronacerboni').then(function (resource) {
+            for(var i = 0; i < resource.data; i++){
+                document.body.innerHTML += resource.data[0].created_at + '<br>';
+            }
+        });
+    </script>
+</body>
+</html>
