@@ -269,21 +269,11 @@ var github = (function(){
         },
 
         next: function (perPage) {
-            var resource = this,
-                url = buildUrl(resource.url, resource.page +1, perPage);
-            return resource.fetch(url)
-                    .done(function () {
-                        resource.page += 1;
-                    });
+            return paginate(this, 1, perPage);
         },
 
         prev: function (perPage) {
-            var resource = this,
-                url = buildUrl(resource.url, resource.page -1, perPage);
-            return resource.fetch(url)
-                    .done(function () {
-                        resource.page -= 1;
-                    });
+            return paginate(this, -1, perPage);
         },
 
         // resource.page must start at 1
@@ -291,40 +281,55 @@ var github = (function(){
 
         all: function () {
 
-            // Current resource
+            // that/this is the current resource. that is used within the
+            // recursive next function.
 
             var that = this,
 
-            // Promise construct regarding the fetching of each page
+            // Promise regarding the fetching of all pages
 
                 deferred = new utils.deferred(),
                 promise = deferred.promise();
 
-            // Resource which is return and will contain all items
+            // Resource which is return and will have items populated on
+            // its data property
 
-                resource = new Resource(this.url);
+            resource = new Resource(this.url);
 
-            function again(res) {
+            function next(res) {
                 utils.when( (res || that).next(API.parameters.perPageValueMax) )
                     .then(function(res) {
-                        // Dangerous assumption that a paginated resource always
+                        // (!) Dangerous assumption that a paginated resource always
                         // responds as Array
                         if(res.data.length > 0){
                             resource.data = resource.data.concat(res.data);
-                            //investigate: deferred.notify(resource.data);
-                            again(res);
+                            //investigate: Perhaps notify with each pages data
+                            next(res);
                         } else {
-                            // Change page to match last page with entries on it
+                            // There are no more entries. The API returns an empty [].
+                            // Change page to match last page with actual entries on it
                             resource.page = res.page -1;
                             deferred.resolve(resource);
                         }
                     });
             }
-            // Recursion logic
-            that.page = 0;
-            again();
+            // Recursion logic. The resource's page property is set to 0 so first use of
+            // resource.next picks up data from the firt page (page 1)
+            this.page = 0;
+            next();
             return utils.extend(resource, promise);
         }
+    };
+
+    // Returns the fetch promise for the next or previous page.
+    // Will increment or decrement the fetched resource page property
+    // appropriately.
+
+    function paginate(resource, direction, perPage){
+        var url = buildUrl(resource.url, resource.page + direction, perPage);
+        return resource.fetch(url).done(function () {
+            resource.page += direction;
+        });
     }
 
     // Returns an API url for a resource fetch. resourceUrl is required.
@@ -333,7 +338,7 @@ var github = (function(){
         var pageNum = pageNum || API.parameters.pageValue,
             perPageNum = perPage || API.parameters.perPageValue;
 
-        // Build a url based on arguments or default values set in API{}
+        // Build a url based on arguments or default values set in API
         // eg. https://api.github.com/repos/joyent/node/watchers?page=1&per_page=30
         return resourceUrl +
                '?' + API.parameters.page +    '=' + pageNum +
@@ -354,7 +359,7 @@ var github = (function(){
         }
     };
 
-    // The base Github API object
+    // The base Github API object.
     // This object is further populated by properties relating to each
     // api resource found in github.endpoints.
     //
