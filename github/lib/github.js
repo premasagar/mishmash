@@ -79,6 +79,25 @@ var github = (function(){
             return collected;
         },
 
+        // Returns a sorted copy of list, ranked in ascending order by the
+        // results of running each value through iterator. Iterator may also
+        // be the string name of the property to sort by (eg. length).
+        // http://documentcloud.github.com/underscore/#sortBy
+        sortBy: function(obj, val, context) {
+            var iterator = _.isFunction(val) ? val : function(obj) { return obj[val]; };
+            return _.pluck(_.map(obj, function(value, index, list) {
+              return {
+                value : value,
+                criteria : iterator.call(context, value, index, list)
+              };
+            }).sort(function(left, right) {
+              var a = left.criteria, b = right.criteria;
+              if (a === void 0) return 1;
+              if (b === void 0) return -1;
+              return a < b ? -1 : a > b ? 1 : 0;
+            }), 'value');
+          },
+
         // Extend the first object passed as an argument with successive ones.
         extend: function (reciever) {
             var target  = arguments[0],
@@ -318,6 +337,26 @@ var github = (function(){
             this.page = 0;
             next();
             return utils.extend(resource, promise);
+        },
+
+        // Sets a Resource's data as a filtered collection of that data
+        filter: function(filter) {
+            this.data = github.utils.filter(this.data, filter, this);
+            return this;
+        },
+
+        // Returns a resource. When its promise resolves the resource
+        latest: function () {
+            var deferred = new github.utils.deferred(),
+                promise  = deferred.promise(),
+                resource = new Resource(this.url);
+            this.all().pipe(function(res){
+                resource.data = github.utils.sortBy(res.data, function(item){
+
+                }, this);
+                deferred.resolve(resource);
+            });
+            return github.utils.extend(resource, promise);
         }
     };
 
