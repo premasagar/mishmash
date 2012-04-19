@@ -295,17 +295,21 @@ var github = (function(){
             return paginate(this, -1, perPage);
         },
 
-        // resource.page must start at 1
-        // TODO: Rewrite this function
+        // A pagination function which goes through each page collating
+        // data onto one returned Resource.
+        //
+        // An optional callback can be passed which is passed the current
+        // paginated data and page's resource object.
+        //
+        // Returning true in your callback will cancel the pagination early.
 
-        all: function () {
-
-            // that/this is the current resource. that is used within the
-            // recursive next function.
+        until: function (callback) {
 
             var that = this,
 
-            // Promise regarding the fetching of all pages
+            // Promise regarding the fetching of all pages.
+            // Resovles when all pages fetched or the passed callback returns
+            // true.
 
                 deferred = new utils.deferred(),
                 promise = deferred.promise();
@@ -316,24 +320,38 @@ var github = (function(){
             resource = new Resource(this.url);
 
             function next(res) {
-                utils.when( (res || that).next(API.parameters.perPageValueMax) )
-                    .then(function(res) {
-                        // (!) Dangerous assumption that a paginated resource always
-                        // responds as Array
-                        if(res.data.length > 0){
-                            resource.data = resource.data.concat(res.data);
-                            //investigate: Perhaps notify with each pages data
-                            next(res);
-                        } else {
-                            // There are no more entries. The API returns an empty [].
-                            // Change page to match last page with actual entries on it
+                utils.when((res || that).next(API.parameters.perPageValueMax))
+                    .then(function (res) {
+
+                        // Sets resource page back to page with actual
+                        // content.
+
+                        function end() {
                             resource.page = res.page -1;
                             deferred.resolve(resource);
                         }
+
+                        // Concatinate data to the master resource if there is
+                        // data to be found.
+
+                        if(res.data.length > 0){
+                            resource.data = resource.data.concat(res.data);
+                            if(callback) {
+                                if(callback(res.data, resource) === true){
+                                    end();
+                                } else {
+                                    next(res);
+                                }
+                            } else {
+                                next(res);
+                            }
+                        } else { // No data left
+                            end();
+                        }
                     });
             }
-            // Recursion logic. The resource's page property is set to 0 so first use of
-            // resource.next picks up data from the firt page (page 1)
+            // Start recursion with some pre-logic. The resource's page property is set
+            // to 0 so first use of resource.next picks up data from the firt page (page 1)
             this.page = 0;
             next();
             return utils.extend(resource, promise);
@@ -341,6 +359,7 @@ var github = (function(){
 
         // Sets a Resource's data as a filtered collection of that data
         filter: function(filter) {
+            this.data = (utils.isArray(this.data)) ? this.data : [this.data];
             this.data = github.utils.filter(this.data, filter, this);
             return this;
         },
