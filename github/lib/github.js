@@ -337,7 +337,7 @@ var github = (function(){
                         if(res.data.length > 0){
                             resource.data = resource.data.concat(res.data);
                             if(callback) {
-                                if(callback(res.data, resource) === true){
+                                if(callback(res.data, res.page, resource) === true){
                                     end();
                                 } else {
                                     next(res);
@@ -367,7 +367,8 @@ var github = (function(){
                 promise = deferred.promise(),
                 resource = new Resource(this.url),
                 totalIndex = -1,
-                dontContinue;
+                dontContinue,
+                i;
 
             function next(res) {
                 utils.when((res || that).next(API.parameters.perPageValueMax))
@@ -381,12 +382,14 @@ var github = (function(){
                         if(res.data.length > 0){
                             resource.data = resource.data.concat(res.data);
                             if(callback) {
-                                utils.each(res.data, function(item, i, items){
+                                i = 0;
+                                for(i; i < res.data.length; i++){
                                     totalIndex++;
-                                    if(callback(item, totalIndex, items, resource)){
+                                    if(callback(item, totalIndex, res.page, items, resource)){
                                         dontContinue = true;
+                                        break;
                                     }
-                                }, this);
+                                }
                                 if(dontContinue){
                                     end();
                                 } else {
