@@ -7,19 +7,22 @@
     // Requires a github user name and an event type.
     //
     // This method should take into account for duplicate
-    // watch events of the same repo
+    // watch events of the same repo.
     //
     // Option parameters:
     // limit
+
     github.helpers.events = function(user, type, options) {
         var deferred = new github.utils.deferred(),
             promise = deferred.promise(),
             events = [],
+            captured = {},
             found = 0,
             limit = options.limit || Infinity;
 
         github.users(user + '/events').until2(function (item) {
-            if(item.type === type){
+            if(item.type === type && !captured.hasOwnProperty(item.repo.name)){
+                captured[item.repo.name] = true;
                 events.push(item);
                 found++;
             }
