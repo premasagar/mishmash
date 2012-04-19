@@ -361,7 +361,7 @@ var github = (function(){
         // The difference is that this function passes each pages item
         // rather than a page's data entirely.
 
-        until_: function (callback, n) {
+        until2: function (callback, n) {
             var that = this,
                 deferred = new utils.deferred(),
                 promise = deferred.promise(),
