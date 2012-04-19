@@ -385,7 +385,7 @@ var github = (function(){
                                 i = 0;
                                 for(i; i < res.data.length; i++){
                                     totalIndex++;
-                                    if(callback(item, totalIndex, res.page, items, resource)){
+                                    if(callback(res.data[i], totalIndex, res.page, res.data, resource)){
                                         dontContinue = true;
                                         break;
                                     }
