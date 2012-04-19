@@ -12,13 +12,16 @@
     <!-- Github helper script -->
     <script src="helpers.js"></script>
     <script>
-        // Display recent events which only involve new repo watches
+    github.helpers.events('aaronacerboni', 'WatchEvent', {limit:5})
+        .then(displayEvents);
 
-        github.helpers.latestEvents.WatchEvent('aaronacerboni').then(function (resource) {
-            for(var i = 0; i < resource.data.length; i++){
-                document.body.innerHTML += resource.data[i].created_at + '<br>';
-            }
-        });
+    function displayEvents(events) {
+        document.body.innerHTML = 'Aaron\'s latest watched repos...<br>';
+        for(var i = 0; i < events.length; i++){
+            document.body.innerHTML = document.body.innerHTML + events[i].repo.name +
+                                      ' at ' + new Date(events[i].created_at) + '<br>';
+        }
+    }
     </script>
 </body>
 </html>
