@@ -312,12 +312,12 @@ var github = (function(){
             // true.
 
                 deferred = new utils.deferred(),
-                promise = deferred.promise();
+                promise = deferred.promise()
 
             // Resource which is return and will have items populated on
             // its data property
 
-            resource = new Resource(this.url);
+                resource = new Resource(this.url);
 
             function next(res) {
                 utils.when((res || that).next(API.parameters.perPageValueMax))
@@ -352,6 +352,56 @@ var github = (function(){
             }
             // Start recursion with some pre-logic. The resource's page property is set
             // to 0 so first use of resource.next picks up data from the firt page (page 1)
+            this.page = 0;
+            next();
+            return utils.extend(resource, promise);
+        },
+
+        // Another pagination function similar to all.
+        // The difference is that this function passes each pages item
+        // rather than a page's data entirely.
+
+        until_: function (callback, n) {
+            var that = this,
+                deferred = new utils.deferred(),
+                promise = deferred.promise(),
+                resource = new Resource(this.url),
+                totalIndex = -1,
+                dontContinue;
+
+            function next(res) {
+                utils.when((res || that).next(API.parameters.perPageValueMax))
+                    .then(function (res) {
+
+                        function end(){
+                            resource.page = res.page -1;
+                            deferred.resolve(resource);
+                        }
+
+                        if(res.data.length > 0){
+                            resource.data = resource.data.concat(res.data);
+                            if(callback) {
+                                utils.each(res.data, function(item, i, items){
+                                    totalIndex++;
+                                    if(callback(item, totalIndex, items, resource)){
+                                        dontContinue = true;
+                                    }
+                                }, this);
+                                if(dontContinue){
+                                    end();
+                                } else {
+                                    next(res);
+                                }
+                            } else {
+                                next(res);
+                            }
+                        } else { // No data left
+                            end();
+                        }
+
+                    });
+            }
+
             this.page = 0;
             next();
             return utils.extend(resource, promise);
