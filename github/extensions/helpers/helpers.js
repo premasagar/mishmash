@@ -4,9 +4,13 @@
 
     github.helpers = {};
 
-    // Requires a github user name, an event type.
+    // Requires a github user name and an event type.
+    //
+    // This method should take into account for duplicate
+    // watch events of the same repo
+    //
     // Option parameters:
-    // limit: a number which
+    // limit
     github.helpers.events = function(user, type, options) {
         var deferred = new github.utils.deferred(),
             promise = deferred.promise(),
