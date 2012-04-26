@@ -1,4 +1,5 @@
 var github = (function(){
+    'use strict';
 
     //
     // G I T H U B    A P I    J S    W R A P P E R
