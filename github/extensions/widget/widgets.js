@@ -22,12 +22,12 @@
     //           dom element rather than replace it. (default: false)
     //  activityAmount - Number of max activities to be shown
     //  activityFilter - String which can be a github event type
-    github.widgets.person = function badge(user, elem, options){
+    github.widgets.person = function person(user, elem, options){
         var deferred = new github.utils.deferred(),
             promise = deferred.promise(),
             options = options || {},
             append = options.append || false,
-            activityAmount = options.activityAmount || 6,
+            activityAmount = options.activityAmount || 4,
             eventType = options.activityFilter || 'all';
 
         github.utils.when(
@@ -35,7 +35,7 @@
             github.helpers.events(user, eventType, {limit: activityAmount})
         )
         .pipe(template)
-        .pipe(function(html){
+        .then(function(html){
             elem.innerHTML = (append) ? elem.innerHTML + html : html;
             deferred.resolve(html);
         });
@@ -57,17 +57,33 @@
                         "<a href='{{blog}}' target='_blank'>{{blog}}</a>" +
                       "</div>",
                 activities = '';
-
+            var x = 0;
             if(events.length){
                 activities = "<ul id='github-activities'>"
                 github.utils.each(events, function(item) {
+                    activities += '<li>';
                     switch(item.type){
-                        case 'WatchEvent':  activities += tim('<li>Recently watched {{name}}</li>', item.repo);
+                        case 'WatchEvent':
+                            activities += tim(
+                                           'Watched {{name}} '+ github.utils.prettyDate(item.created_at),
+                                           item.repo
+                                          );
+                            console.log(item.created_at, item, x++);
                         break;
-                        case 'PushEvent':   activities += tim('<li>Recently pushed to {{name}}</li>', item.repo);
+                        case 'PushEvent':
+                            activities += tim(
+                                           'Pushed to {{name}} '+ github.utils.prettyDate(item.created_at),
+                                           item.repo
+                                          );
                         break;
-                        case 'FollowEvent': activities += tim('<li>Recently followed {{login}}</li>', item.payload.target);
+                        case 'FollowEvent':
+                            activities += tim(
+                                           'Follow {{name}} '+ github.utils.prettyDate(item.created_at),
+                                           item.payload.target
+                                          );
+                        break;
                     }
+                    activities += '</li>';
                 });
                 activities += "</ul>";
             }
@@ -86,7 +102,55 @@
     };
 
     github.widgets.repos = function repos(user, elem, options){
+        var deferred = new github.utils.deferred(),
+            promise = deferred.promise(),
+            options = options || {},
+            append = options.append || false,
+            repoAmount = options.repoAmount || 6,
+            found = 0;
 
+        options.templates || (options.templates = {});
+
+        github.users(user).related('repos').until2(function (repo) {
+            found++;
+            if(found === options.repoAmount){
+                return true;
+            }
+        })
+        .pipe(template)
+        .pipe(function (html) {
+            elem.innerHTML = (append) ? elem.innerHTML + html : html;
+            deferred.resolve(html);
+        });
+
+        function template (repos) {
+            var deferred = new github.utils.deferred(),
+                promise = deferred.promise(),
+                repos = repos.data,
+
+                // templates
+
+                reposTemplate = options.templates.reposTemplate ||
+                            "<ul>{{repo}}</ul>",
+                repoTemplate = options.templates.repoTemplate ||
+                            "<li><a href='{{html_url}}' title='{{watchers}} watchers and {{forks}} fork(s)'>{{name}}</a></li>",
+                seeAllTemplate = options.templates.seeAllTemplate ||
+                            "See all of <a href='https://github.com/{{login}}/repositories'>{{login}}'s repos</a>",
+
+                // build template
+
+                repoCollection = '';
+
+            github.utils.each(repos, function(item) {
+                repoCollection += tim(repoTemplate, item);
+            });
+
+            return deferred.resolve(
+                '<div id="github-widget-repos">'+
+                    tim(reposTemplate, {repo: repoCollection}) + tim(seeAllTemplate, {login: repos[0].owner.login}) +
+                '</div>'
+            );
+        }
     };
 
 }(github));
