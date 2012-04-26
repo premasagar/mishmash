@@ -1,4 +1,2 @@
 # github.js
-- Support pagination
-- Support interface to Events
-- Support filtering of event data
+- Revise github.widgets to use new revisions to github.js and maybe github.helpers
