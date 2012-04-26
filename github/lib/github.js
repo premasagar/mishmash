@@ -16,7 +16,9 @@ var github = (function(){
     // 4. An each loop which builds the base API object.
 
 
-    var github = config = {}, utils;
+    var github,
+        config = {},
+        utils;
 
     // Useful utility functions for working with deferred's, objects and
     // collections.
