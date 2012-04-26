@@ -1,4 +1,5 @@
 (function(github){
+    'use strict';
 
     // Augment the github api with the helper object
 
