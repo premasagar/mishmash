@@ -19,14 +19,19 @@
             options = options || {},
             events = [],
             captured = {},
-            found = 0,
-            limit = options.limit || Infinity;
+            limit = options.limit || Infinity,
+            found = 0;
 
         github.users(user + '/events').until2(function (item) {
-            if(item.type === type && !captured.hasOwnProperty(item.repo.name)){
-                captured[item.repo.name] = true;
+            if(type === 'all'){
                 events.push(item);
                 found++;
+            } else {
+                if(item.type === type && !captured.hasOwnProperty(item.repo.name)) {
+                    captured[item.repo.name] = true;
+                    events.push(item);
+                    found++;
+                }
             }
             if(found === limit){
                 return true;
