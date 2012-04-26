@@ -65,7 +65,9 @@
                     switch(item.type){
                         case 'WatchEvent':
                             activities += tim(
-                                           'Watched {{name}} '+ github.utils.prettyDate(item.created_at),
+                                           'Watched <a href="' +
+                                           item.repo.url.replace('https://api.github.com/repos', 'https://github.com') + '">{{name}}</a> ' +
+                                           github.utils.prettyDate(item.created_at),
                                            item.repo
                                           );
                             console.log(item.created_at, item, x++);
