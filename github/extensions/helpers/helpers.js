@@ -6,7 +6,7 @@
 
     // Requires a github user name and an event type.
     //
-    // This method should take into account for duplicate
+    // This method takes into account for duplicate
     // watch events of the same repo.
     //
     // Option parameters:
