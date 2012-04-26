@@ -1,80 +1,92 @@
-(function(github, tim){
+(function(github){
+    'use strict';
 
-    var github = github,
-        tim = tim,
-        templates = {
-            users : function(users){
-                var ul = '<ul class="github-users">{{li}}</ul>',
-                    li = '<li>' +
-                            '<a rel="tag" href="{{html_url}}" title="{{name}} : {{bio}}">{{name}}\'s page</a>' +
-                         '</li>',
-                    template = '';
+    //
+    // Extend the github global with `lanyrd.widget`
 
-                for (var i = 0; i < repos.length; i++) {
-                    template += tim(li, repos[i]);
-                };
-                return tim(ul, {li:template});
-            },
-            repos : function(repos){
-                var ul = '<ul class="github-repos">{{li}}</ul>',
-                    li = '<li>' +
-                            '<a rel="tag" href="{{html_url}}" title="{{name}} : {{description}}">{{name}}</a>' +
-                            '<br> {{description}}' +
-                         '</li>',
-                    template = '';
+    github.widgets = {};
 
-                for (var i = 0; i < repos.length; i++) {
-                    template += tim(li, repos[i]);
-                };
-                return tim(ul, {li:template});
-            },
-            commits : function(commits){
+    //
+    // Tim (a tiny, secure JavaScript micro-templating script)
+    // https://github.com/premasagar/tim
 
-            },
-            gists : function(gists){
+    var tim=function(){var e=/{{\s*([a-z0-9_][\\.a-z0-9_]*)\s*}}/gi;return function(f,g){return f.replace(e,function(h,i){for(var c=i.split("."),d=c.length,b=g,a=0;a<d;a++){b=b[c[a]];if(b===void 0)throw"tim: '"+c[a]+"' not found in "+h;if(a===d-1)return b}})}}();
 
-            },
-            languages : function(langs){
+    //
+    // Here be Widgets !
 
-            }
-        };
+    // person creates a widget for representing a Github user.
+    //
+    // options:
+    //  append - Flag, if true the widget will be appended to the
+    //           dom element rather than replace it. (default: false)
+    //  activityAmount - Number of max activities to be shown
+    //  activityFilter - String which can be a github event type
+    github.widgets.person = function badge(user, elem, options){
+        var deferred = new github.utils.deferred(),
+            promise = deferred.promise(),
+            options = options || {},
+            append = options.append || false,
+            activityAmount = options.activityAmount || 6,
+            eventType = options.activityFilter || 'all';
 
-    function defaultTemplates(tokens, data){
-        var html = '';
-        switch(tokens.pop()){
-            case 'following' :
-            case 'followers' :
-            case 'watchers' :
-                html = templates.users(data);
-                break;
-            case 'repos' :
-            case 'watched' :
-                html = templates.repos(data);
-                break;
-            case 'commits' :
-                html = templates.commits(data);
-                break;
-            case 'gists' :
-                html = templates.gists(data);
-                break;
-            case 'languages' :
-                html = templates.languages(data);
-                break;
-            default :
-            if(tokens[0] === 'users'){
-                html = templates.users(data);
-            } else if(tokens[0] === 'repos'){
-                html = templates.repos(data);
-            }
-        }
-        return html;
-    }
-
-    github.widget = function(path, template, callback){
-        github(path, function(resource){
-            var html = defaultTemplates(path.split('/'), resource.data);
-            callback(html);
+        github.utils.when(
+            github.users(user).fetch(),
+            github.helpers.events(user, eventType, {limit: activityAmount})
+        )
+        .pipe(template)
+        .pipe(function(html){
+            elem.innerHTML = (append) ? elem.innerHTML + html : html;
+            deferred.resolve(html);
         });
+
+        function template(user, events){
+            var deferred = new github.utils.deferred(),
+                promise = deferred.promise(),
+                user = user.data,
+                html = '',
+
+                // templates
+
+                top = "<div id='github-widget-person'>{{bio}}{{activities}}</div>",
+                bio = "<a style='float:left' href='{{html_url}}' title={{login}} target='_blank'>" +
+                        "<img src='{{avatar_url}}' height='36px' width='36px' alt='{{login}}'/>" +
+                      "</a>" +
+                      "<div style='margin-left:44px'>" +
+                        "<h4 style='margin:0'><a href='{{html_url}}' target='_blank'>{{login}} ({{name}})</a></h4>" +
+                        "<a href='{{blog}}' target='_blank'>{{blog}}</a>" +
+                      "</div>",
+                activities = '';
+
+            if(events.length){
+                activities = "<ul id='github-activities'>"
+                github.utils.each(events, function(item) {
+                    switch(item.type){
+                        case 'WatchEvent':  activities += tim('<li>Recently watched {{name}}</li>', item.repo);
+                        break;
+                        case 'PushEvent':   activities += tim('<li>Recently pushed to {{name}}</li>', item.repo);
+                        break;
+                        case 'FollowEvent': activities += tim('<li>Recently followed {{login}}</li>', item.payload.target);
+                    }
+                });
+                activities += "</ul>";
+            }
+
+            // building
+
+            bio = tim(bio, user);
+
+            return deferred.resolve(
+                tim(top, {
+                    bio: bio,
+                    activities: activities
+                })
+            );
+        }
     };
 
-}(github, tim));
+    github.widgets.repos = function repos(user, elem, options){
+
+    };
+
+}(github));
