@@ -16,6 +16,7 @@
     github.helpers.events = function(user, type, options) {
         var deferred = new github.utils.deferred(),
             promise = deferred.promise(),
+            options = options || {},
             events = [],
             captured = {},
             found = 0,
