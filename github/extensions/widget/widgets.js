@@ -17,11 +17,11 @@
 
     // person creates a widget for representing a Github user.
     //
-    // options:
+    // options is a key value mapping with the following parameters:
     //  append - Flag, if true the widget will be appended to the
     //           dom element rather than replace it. (default: false)
-    //  activityAmount - Number of max activities to be shown
-    //  activityFilter - String which can be a github event type
+    //  activityAmount - Number of max activities to be shown. (default: 4)
+    //  activityFilter - String which can be a github event type. (default: 'all')
     github.widgets.person = function person(user, elem, options){
         var deferred = new github.utils.deferred(),
             promise = deferred.promise(),
@@ -40,62 +40,47 @@
             deferred.resolve(html);
         });
 
+        options.templates || (options.templates = {});
+
         function template(user, events){
             var deferred = new github.utils.deferred(),
                 promise = deferred.promise(),
                 user = user.data,
                 html = '',
 
-                // templates
+                // Templates
 
-                top = "<div id='github-widget-person'>{{bio}}{{activities}}</div>",
-                bio = "<a style='float:left' href='{{html_url}}' title={{login}} target='_blank'>" +
-                        "<img src='{{avatar_url}}' height='36px' width='36px' alt='{{login}}'/>" +
-                      "</a>" +
-                      "<div style='margin-left:44px'>" +
-                        "<h4 style='margin:0'><a href='{{html_url}}' target='_blank'>{{login}} ({{name}})</a></h4>" +
-                        "<a href='{{blog}}' target='_blank'>{{blog}}</a>" +
-                      "</div>",
-                activities = '';
-            var x = 0;
-            if(events.length){
-                activities = "<ul id='github-activities'>"
-                github.utils.each(events, function(item) {
-                    activities += '<li>';
-                    switch(item.type){
-                        case 'WatchEvent':
-                            activities += tim(
-                                           'Watched <a href="' +
-                                           item.repo.url.replace('https://api.github.com/repos', 'https://github.com') + '">{{name}}</a> ' +
-                                           github.utils.prettyDate(item.created_at),
-                                           item.repo
-                                          );
-                            console.log(item.created_at, item, x++);
-                        break;
-                        case 'PushEvent':
-                            activities += tim(
-                                           'Pushed to {{name}} '+ github.utils.prettyDate(item.created_at),
-                                           item.repo
-                                          );
-                        break;
-                        case 'FollowEvent':
-                            activities += tim(
-                                           'Follow {{name}} '+ github.utils.prettyDate(item.created_at),
-                                           item.payload.target
-                                          );
-                        break;
-                    }
-                    activities += '</li>';
-                });
-                activities += "</ul>";
-            }
+                wrapper =    options.templates.wrapper || 
+                             "<div id='github-widget-person'>{{bio}}{{activities}}</div>",
+                bio =        options.templates.bio || 
+                             "<a style='float:left' href='{{html_url}}' title={{login}} target='_blank'>" +
+                                "<img src='{{avatar_url}}' height='36px' width='36px' alt='{{login}}'/>" +
+                             "</a>" +
+                             "<div style='margin-left:44px'>" +
+                               "<h4 style='margin:0'><a href='{{html_url}}' target='_blank'>{{login}} ({{name}})</a></h4>" +
+                               "<a href='{{blog}}' target='_blank'>{{blog}}</a>" +
+                             "</div>",
+                activities = options.templates.activities || 
+                             '<ul id="github-activities">{{activities}}</ul>',
+                activity =   options.templates.activity || 
+                             '<li>{{activity}}</li>';
 
-            // building
+            // Building templates with tim
+
+            // .. build events list section
+
+            activities = tim(activities, {
+                activities: github.utils.map(events, function (item) {
+                    return tim(activity, {activity: getEventString(item)});
+                }).join("")
+            });
+
+            // .. build bio section
 
             bio = tim(bio, user);
 
             return deferred.resolve(
-                tim(top, {
+                tim(wrapper, {
                     bio: bio,
                     activities: activities
                 })
@@ -154,5 +139,29 @@
             );
         }
     };
+
+    function getEventString(event) {
+        switch(event.type){
+            case 'WatchEvent':
+                return tim(
+                           'Watched <a href="' +
+                           event.repo.url.replace('https://api.github.com/repos', 'https://github.com') + '">{{name}}</a> ' +
+                           github.utils.prettyDate(event.created_at),
+                           event.repo
+                          );
+            break;
+            case 'PushEvent':
+                return tim(
+                           'Pushed to {{name}} '+ github.utils.prettyDate(event.created_at),
+                           event.repo
+                          );
+            break;
+            case 'FollowEvent':
+                return tim(
+                           'Follow {{name}} '+ github.utils.prettyDate(event.created_at),
+                           event.payload.target
+                          );
+        }
+    }
 
 }(github));
