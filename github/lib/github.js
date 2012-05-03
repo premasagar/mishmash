@@ -24,8 +24,8 @@ var github = (function(){
     // collections.
 
     utils = {
-    // Cached anchor element for parsing urls. This is used by url methods
-    // like .pathname().
+        // Cached anchor element for parsing urls. This is used by url methods
+        // like .pathname().
         a: document && document.createElement('a'),
 
         // Check to see if the passed object is an array.
