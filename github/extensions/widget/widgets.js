@@ -16,12 +16,19 @@
     // Here be Widgets !
 
     // person creates a widget for representing a Github user.
+    // 
+    // Params:
+    // - user    github username 
+    // - elem    DOM element to apply the widget to
+    // - options key/value map for some extra parameters
     //
-    // options is a key value mapping with the following parameters:
+    // options: 
+    //
     //  append - Flag, if true the widget will be appended to the
     //           dom element rather than replace it. (default: false)
     //  activityAmount - Number of max activities to be shown. (default: 4)
     //  activityFilter - String which can be a github event type. (default: 'all')
+
     github.widgets.person = function person(user, elem, options){
         var deferred = new github.utils.deferred(),
             promise = deferred.promise(),
@@ -88,6 +95,19 @@
         }
     };
 
+    // repos creates a widget for representing a users list of repos
+    // 
+    // Params:
+    // - user    github username 
+    // - elem    DOM element to apply the widget to
+    // - options key/value map for some extra parameters
+    //
+    // options: 
+    //
+    //  append - Flag, if true the widget will be appended to the
+    //           dom element rather than replace it. (default: false)
+    //  repoAmount - Number of max repos to be shown. (default: 6)
+
     github.widgets.repos = function repos(user, elem, options){
         var deferred = new github.utils.deferred(),
             promise = deferred.promise(),
@@ -140,6 +160,10 @@
         }
     };
 
+    // Private function for returning human readable github event data from a github 
+    // event resource.
+    // eg. WatchEvent -> Watched github.com/
+
     function getEventString(event) {
         switch(event.type){
             case 'WatchEvent':
@@ -152,13 +176,13 @@
             break;
             case 'PushEvent':
                 return tim(
-                           'Pushed to {{name}} '+ github.utils.prettyDate(event.created_at),
+                           'Pushed to {{name}} ' + github.utils.prettyDate(event.created_at),
                            event.repo
                           );
             break;
             case 'FollowEvent':
                 return tim(
-                           'Follow {{name}} '+ github.utils.prettyDate(event.created_at),
+                           'Follow {{name}} ' + github.utils.prettyDate(event.created_at),
                            event.payload.target
                           );
         }
