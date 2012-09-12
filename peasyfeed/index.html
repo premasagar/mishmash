@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <meta name=viewport content="width=device-width,initial-scale=1.0">
+    <title>feed</title>
+    
+    <style>
+        #url-input {
+            font-size:1.2em;
+            min-width:62%;
+        }
+        #add-url {
+            color:blue;
+            text-decoration:underline;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="input">
+        <form id="url-form">
+            <!-- TODO: Add selectbox with example URLs -->
+            
+            <label for="url-input">Feed URL:</label>
+            <input id="url-input" type="url" placeholder="http://example.com/foo.rss">
+            <label for="url-active">Active?</label>
+            <input id="url-active" type="checkbox" checked>
+            
+            <a id="add-url">+ Add another URL</a>
+        </form>
+    </div>
+    
+    <hr>
+    
+    <div id="content"></div>
+    
+    <script type="text/tim" class="entry">
+        <article class="hatom">
+            <h1 class="entry-title">
+                <a rel="bookmark" href="{{link}}">{{title}}</a>
+            </h1>
+            <div class="entry-content">{{content}}</div>
+        </article>
+        <hr>
+    </script>
+    
+    <script src="https://www.google.com/jsapi?key=ABQIAAAAzy-FNVUDL8acFjau13-1OBR5vmDMjgQTfK2ZmREKQWlPDUVCsRS1dF3l0j6Y4NCEib8kQAapZXkK4A"></script>
+    <script src="../../tim/build/pkg/standard.min.js"></script>
+    <!--<script src="../../tim/lib/pluggables.js"></script> -->
+    <script src="google-feed-api.js"></script>
+    
+    <script>
+        // EXAMPLE
+        
+        /* example urls
+        http://dharmafly.com/feed
+        
+    http://feeds.soundcloud.com/users/1868652-criticalmasspodcasts/tracks
+        http://api.flickr.com/services/feeds/geo/?id=54304913@N00&lang=en-us&format=rss_200
+        https://twitter.com/statuses/user_timeline/627103.rss
+        http://api.flickr.com/services/feeds/geo/?lang=en-us&format=rss_200&tags=tree
+        */
+        
+        // TODO: localStorage caching of last-used settings, with "Clear all" reset button
+        
+        var ui = {
+            container: document.getElementById("content"),
+            
+            empty: function(){
+                this.container.innerHTML = "";
+            },
+            
+            staticMap: function(entry, feed){
+                var geo, mapUrl, img;
+                
+                if (window.GoogleStaticMap){
+                    geo = feed.getGeoByPermalink(entry.link);
+
+                    if (geo && typeof geo.lat !== null){
+                        mapUrl = new GoogleStaticMap({lat:geo.lat, lng:geo.lng}).url();
+
+                        img = document.createElement("img");
+                        img.src = mapUrl;
+                        return img;
+                    }
+                }
+                return null;
+            },
+            
+            renderFeed: function(url, callback){
+                var ui = this,
+                    container = ui.container,
+                    inputElem;
+                
+                if (!url){
+                    url = localStorage.url;
+                    inputElem = document.getElementById("url-input");
+                    inputElem.value = url;
+                    
+                    if (!url){
+                        return false;
+                    }
+                }
+                
+                // If no url protocol specified, then use the current browse location's protocol (commented out as this conflicts with HTML5 input[type=url] default pattern matching)
+                /*
+                if (url.indexOf("://") === -1){
+                    url = "//" + url;
+                }
+                */
+                
+                localStorage.url = url;
+                
+                return new Feed(
+                    url,
+
+                    function(result){
+                        var entries, i, len, entry, geo, mapUrl;
+
+                        console.log(result);
+
+                        if (!result.error) {
+                            entries = result.feed.entries;
+
+                            for (i=0, len=entries.length; i<len; i++){
+                                entry = entries[i];
+
+                                mapImg = ui.staticMap();
+                                if (mapImg){
+                                    container.appendChild(mapImg);
+                                }
+
+                                /////
+
+                                container.innerHTML += tim("entry", entry);
+                            }
+                        }
+
+                        if (callback){
+                            callback(result, container);
+                        }
+                    },
+
+                    {num:10, historical:true, format:"json_xml"}
+                );
+            }
+        };
+        
+        Feed.init()
+            .ready(function(){
+                var formElem = document.getElementById("url-form"),
+                    inputElem = document.getElementById("url-input"),
+                    url, feed;
+                
+                function renderInput(){
+                    url = inputElem.value;
+                    feed = ui.renderFeed(url);
+                }
+                
+                // TODO: support IE's attachEvent
+                formElem.addEventListener("submit", function(event){
+                    event.preventDefault();
+                    ui.empty();
+                    renderInput();
+                }, false);
+                
+                renderInput();
+            });
+    </script>
+</body>
+</html>

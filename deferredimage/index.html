@@ -3,56 +3,110 @@
     <head>
         <meta charset=utf-8>
         <meta name=viewport content="width=device-width,initial-scale=1.0">
-        <title>deferredimage</title>
+        <title>deferredImage</title>
+        
+        <style>
+            code pre {
+                background-color:#222;
+                color:#fff;
+                font-family:monospace;
+                padding:1em 1.62em;
+            }
+            img {
+                margin:0.62em;
+                padding:0.62em;
+                border:1px solid #ccc;
+            }
+        </style>
     </head>
     <body>
-        <h1>deferredImage()</h2>
-        <h2>Code</h2>
+        <h1>deferredImage</h2>
+            
+        <h2>Include scripts</h2>
         
 <code><pre>
-    &lt;script src="../jquery.js">&lt;/script>
-    &lt;script src="deferredimage.js">&lt;/script>
-    
-    &lt;script>
-        jQuery.when(
-                deferredImage("http://farm3.staticflickr.com/2188/2219660409_21ba876f98_m.jpg"),
-                deferredImage("http://farm3.staticflickr.com/2102/2183461799_beff4bb413_m.jpg")
-            )
-            .then(function(resolved1, resolved2){
-                var img1 = resolved1[0],
-                    img2 = resolved2[0];
-                
-                img1.add(img2)
-                    .hide()
-                    .appendTo(document.body)
-                    .fadeIn(1618);
-            });
-    &lt;/script>
+&lt;script src="jquery.js">&lt;/script>
+&lt;script src="deferredimage.js">&lt;/script>
 </pre></code>
+
+
+<h2>Examples</h2>
         
-        <h2>Result</h2>
+<code class="example"><pre>
+deferredImage("http://farm3.staticflickr.com/2188/2219660409_21ba876f98_m.jpg")
+    .then(
+        function(img){
+            jQuery(img).appendTo(document.body);
+        },
+        function(){
+            alert("Image failed to load");
+        }
+    );
+</pre></code>
+<button class="run">Run the code</button>
+    
+<code class="example"><pre>
+jQuery.when(
+    deferredImage("http://farm3.staticflickr.com/2188/2219660409_21ba876f98_m.jpg"),
+    deferredImage("http://farm3.staticflickr.com/2102/2183461799_beff4bb413_m.jpg"),
+    jQuery.get("demo/example.json")
+)   
+.then(
+    function(img1, img2, json){
+        jQuery(document.body)
+            .append(img1)
+            .append(img2)
+            .append("&lt;code>" + json[0].foo + "&lt;/code>");
+    },
+    function(){
+        alert("Something failed to load");
+    }
+);
+</pre></code>
+<button class="run">Run the code</button>
+
+<code class="example"><pre>
+deferredImage(
+    [
+        "http://farm3.staticflickr.com/2188/2219660409_21ba876f98_m.jpg",
+        "http://farm3.staticflickr.com/2102/2183461799_beff4bb413_m.jpg",
+        "http://farm1.staticflickr.com/73/175573986_f5073bfcb0_m.jpg"
+    ],
+    
+    // Success callback - called if all images load successfully
+    // image elements are passed as arguments in the same order as above
+    function(){
+        jQuery(arguments)
+            .hide()
+            .appendTo(document.body)
+            .fadeIn(1000);
+    },
+    
+    // Fail callback - called if one or more images fail to load
+    function(){
+        alert("An image failed to load");
+    }
+);
+</pre></code>
+<button class="run">Run the code</button>
+
+<hr>
         
-        <script src="../jquery.js"></script>
-        <script src="deferredimage.js"></script>
-        
-        <script>
-            jQuery.when(
-                    deferredImage("http://farm3.staticflickr.com/2188/2219660409_21ba876f98_m.jpg"),
-                    deferredImage("http://farm3.staticflickr.com/2102/2183461799_beff4bb413_m.jpg")
-                )
-                .then(function(resolved1, resolved2){
-                    if (!resolved1){
-                        debugger;
-                    }
-                    
-                    var img1 = resolved1[0],
-                        img2 = resolved2[0];
-                    
-                    img1.add(img2)
-                        .hide()
-                        .appendTo(document.body)
-                        .fadeIn(1618);
-                });
-        </script>
-    </body>
+<h2>Result</h2>
+
+<script src="../jquery.js"></script>
+<script src="deferredimage.js"></script>
+
+<script>
+    // Attach click handlers to "run" buttons, to execute demo example code blocks
+    jQuery('button.run')
+        .click(function(){
+            var codeElem = jQuery(this).prev("code.example"),
+                code = codeElem.text();
+                
+            jQuery.globalEval(code);
+        });
+</script>
+
+</body>
 </html>

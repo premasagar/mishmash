@@ -135,7 +135,7 @@ var slideshow = (function(window, document, jQuery){
                 var args = slice.apply(arguments);
                 args[0] += "." + this.namespace;
                 
-                $document.on.apply($document, args);
+                this.container.on.apply(this.container, args);
                 return this;
             },
             
@@ -143,7 +143,7 @@ var slideshow = (function(window, document, jQuery){
                 var args = slice.apply(arguments);
                 args[0] += "." + this.namespace;
                 
-                $document.trigger.apply($document, args);
+                this.container.trigger.apply(this.container, args);
                 return this;
             },
             
@@ -307,7 +307,8 @@ var slideshow = (function(window, document, jQuery){
             },
             
             loadNext: function(){
-                var src, img;
+                var slideshow = this,
+                    src, img;
                 
                 this.showing ++;
                 if (this.showing >= this.items.length){
@@ -318,12 +319,18 @@ var slideshow = (function(window, document, jQuery){
                 
                 // add the new image
                 src = this.items[this.showing];
-                if (typeof src === "function"){
-                    src = src();
-                }
-                img = this.newImage = this.image(src);
                 
-                return this.trigger("loading", [img]);
+                if (typeof src === "function"){
+                    src = src.call(this, function(src){
+                        //img = slideshow.newImage = slideshow.image(src);
+                        //slideshow.trigger("loading", [img]);
+                    });
+                }
+                //else {
+                    img = this.newImage = this.image(src);
+                    this.trigger("loading", [img]);
+                //}
+                return this;
             },
             
             loop: function(){    
@@ -367,13 +374,13 @@ var slideshow = (function(window, document, jQuery){
                     img.fadeOut(delay);
                 }
                 
+                this.trigger("fadeOut", [img]);
+                
                 // once faded out, remove the image
                 window.setTimeout(function(){
                     img.remove();
                     slideshow.trigger("remove", [img]);
                 }, delay);
-                
-                this.trigger("fadeOut", [img]);
                 
                 window.setTimeout(function(){
                     slideshow.trigger("fadeIn", [slideshow.oldImage]);

@@ -4,6 +4,24 @@
     <meta charset="utf-8">
     <title>Slideshow</title>
     
+    <style>
+        body {
+            width:100%;
+            padding:0;
+            margin:0;
+            overflow:auto;
+        }
+        .slideshow, .map {
+            float:left;
+        }
+        .slideshow {
+            background:#dcd;
+        }
+        .map {
+            background:#cdc;
+        }
+    </style>
+    
     <script>
         // Console logging, for development
         window.O = function(){
@@ -15,11 +33,15 @@
   </head>
 
   <body>
-    <div class="slideshow" style="width:200px; height:200px;"></div>
+    <div class="slideshow" style="width:500px; height:500px;"></div>
+    <div class="map" style="width:400px; height:400px;"></div>
     
     <script src="../jquery.js"></script>
+    <script src="../../tim/lib/pluggables.js"></script>
+
     <script src="slideshow.js"></script>
     <script src="flickr.js"></script>
+    <script src="../maps/google-static-maps.js"></script>
     
     <script>
         // Use any Flickr search options:
@@ -33,58 +55,90 @@
                 user_id: "54304913@N00",
                 sort: "date-posted-desc",
                 per_page: 500
+            },
+            
+            //
+            
+            flickrSearch3 = {
+                user_id: "54304913@N00",
+                sort: "date-posted-desc",
+                tags: "surya",
+                text: "surya",
+                per_page: 500
+            },
+            flickrSearch4 = {
+                user_id: "51939941@N00",
+                sort: "date-posted-desc",
+                tags: "surya",
+                text: "surya",
+                per_page: 500
+            },
+            
+            //
+            
+            flickrSearch5 = {
+                license: "4,6,7",
+                sort: "interestingness-desc",
+                tags: "tree",
+                has_geo: 1,
+                per_page: 500
+            },
+            flickrSearch6 = {
+                license: "4,6,7",
+                sort: "interestingness-desc",
+                tags: "constellation",
+                has_geo: 1,
+                per_page: 500
             };
         
         // Flickr API key
         flickr.key = "7846550a7f8e8fe8ae2f1b9d301dd7b6";
+
+        /*
+        function loadFlickrSearches(searches){
+            var numSearches, responses;
+            
+            if (!jQuery.isArray(searches)){
+                searches = [searches];
+            }
+            numSearches = searches.length;
+            
+            jQuery
+                .when.apply(jQuery, searches)
+                .then.apply(jQuery, responses
+        }
+        */
     
         jQuery
-            .when(flickr.search(flickrSearch1), flickr.search(flickrSearch2))
+            //.when(flickr.search(flickrSearch1), flickr.search(flickrSearch2))
+            //.when(flickr.search(flickrSearch3), flickr.search(flickrSearch4))
+            .when(flickr.search(flickrSearch5), flickr.search(flickrSearch6))
             .then(function(rsp1, rsp2){
                 if (rsp1[0].stat !== "ok" || rsp2[0].stat !== "ok"){
                     console.log(rsp1, rsp2);
                     throw "Flickr API error";
                 }
             
-                var photos = rsp1[0].photos.photo.concat(rsp2[0].photos.photo),
+                var mySlideshow,
+                    photos = rsp1[0].photos.photo.concat(rsp2[0].photos.photo),
                     urls = jQuery.map(photos, function(photo){
                         return function(){
-                            var size, w, h, max;
+                            var w = this.width,
+                                h = this.height,
+                                size = flickr.bestFit(w, h);
                             
-                            if (mySlideshow){
-                                w = mySlideshow.width;
-                                h = mySlideshow.height;
-                                max = Math.max(w, h);
-                                
-                                // Flickr photo sizes: http://www.flickr.com/services/api/misc.urls.html
-                                if (max < 75){
-                                    size = "s"; // square
-                                }
-                                else if (max < 100){
-                                    size = "t"; // thumbnail
-                                }
-                                else if (max < 240){
-                                    size = "m"; // small
-                                }
-                                else if (max < 500){
-                                    size = ""; // medium
-                                }
-                                else if (max < 640){
-                                    size = "z"; // medium 640
-                                }
-                                else {
-                                    // TODO: not all photos have a large size - need to use API to determine
-                                    size = "b"; // large
-                                }
-                            }
                             return flickr.src(photo, size);
                         };
                     }),
                     target = ".slideshow",
                     options = {
-                        random: true // (`false` is the default option)
-                    },
-                    mySlideshow = slideshow(urls, target, options);
+                        random: true // (`false` is the default)
+                    };
+                mySlideshow = slideshow(urls, target, options);
+                
+                /////
+                    
+                // Set favicon
                 
                 // http://softwareas.com/dynamic-favicons / http://ajaxify.com/run/favicon/favicon.js
                 var favicon = {
@@ -111,26 +165,43 @@
                     }
                 };
                 
+                /////
+                
                 mySlideshow
                     .on("fadeIn", function(event, img){
+                        var mapUrl;
+                        
                         favicon.addLink(img[0].src);
+                        
+                        // map
+                        /*
+                        if (window.GoogleStaticMap){
+                            mapUrl = (new GoogleStaticMap({lat:lat, lng:lng})).url();
+                            jQuery(".map")
+                                .append("<img/>", {src: mapUrl})
+                                .trigger("loading", mapUrl)
+                        }
+                        */
                     })
                     .on("fullscreen", function(event, isFullScreen){
                         // TODO: on fullscreen, swap newImage / oldImage for high-res photo
                         var currentSrc = mySlideshow.newImage[0].src,
                             src = mySlideshow.items[mySlideshow.showing](),
                             img = mySlideshow.image(src);
-                        
-                        if (img[0].complete){
+                            
+                        function onReady(){
                             mySlideshow.newImage = img;
                             mySlideshow.positionImage(img);
+                        }
+                        
+                        if (img[0].complete){
+                            onReady();
                         }
                         else {
                             img.on("load", function(){
                                 // Check that newImage hasn't changed
                                 if (currentSrc.slice(0, -6) === src.slice(0, -6)){
-                                    mySlideshow.newImage = img;
-                                    mySlideshow.positionImage(img);
+                                    onReady();
                                 }
                             });
                         }

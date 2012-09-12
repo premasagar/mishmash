@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang=en>
+    <head>
+        <meta charset=utf-8>
+        <meta name=viewport content="width=device-width,initial-scale=1.0">
+        <title>deferredTimer</title>
+        
+        <style>
+            code pre {
+                background-color:#222;
+                color:#fff;
+                font-family:monospace;
+                padding:1em 1.62em;
+            }
+            img {
+                margin:0.62em;
+                padding:0.62em;
+                border:1px solid #ccc;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>deferredTimer</h2>
+            
+        <h2>Include scripts</h2>
+        
+<code><pre>
+&lt;script src="jquery.js">&lt;/script>
+&lt;script src="deferredtimer.js">&lt;/script>
+</pre></code>
+
+
+<h2>Examples</h2>
+
+<code class="example"><pre>
+deferredTimer(
+    // milliseconds
+    500,
+    
+    // Success callback
+    function(){
+        alert("Success!");
+    },
+
+    // Fail callback
+    function(){
+        alert("Error!");
+    }
+);
+</pre></code>
+<button class="run">Run the code</button>
+
+<code class="example"><pre>
+var bodyElem = jQuery("body"),
+    flag = window.flagBg;
+    
+deferredTimer(
+    // milliseconds
+    500,
+    
+    // Success callback
+    function(){
+        // Toggle body background-colour from white to green
+        bodyElem.css({
+            backgroundColor: flag ?
+                "#fff" : "#afa"
+        });
+        
+        window.flagBg = !flag
+    },
+
+    // Fail callback
+    function(){
+        alert("Error");
+    }
+);
+</pre></code>
+<button class="run">Run the code</button>
+    
+<code class="example"><pre>
+var images = [
+        "http://farm3.staticflickr.com/2188/2219660409_21ba876f98_m.jpg",
+        "http://farm3.staticflickr.com/2102/2183461799_beff4bb413_m.jpg",
+        "http://farm1.staticflickr.com/73/175573986_f5073bfcb0_m.jpg"
+    ],
+    current = 0;
+
+function loadAndDisplay(src){
+    jQuery.when(
+        deferredImage(src),
+        deferredTimer(1000)
+    )
+    .then(
+        function(img){
+            // Display the image
+            jQuery(img)
+                .hide()
+                .fadeIn(500, function(){
+                    // Once faded in, load next image
+                    current ++;
+                    
+                    // Reset loop to first image
+                    if (current >= images.length){
+                        current = 0;
+                    }
+                    
+                    // Load and display the next image
+                    loadAndDisplay(images[current]);
+                });
+                
+            jQuery("#result").html(img);
+        },
+    
+        function(){
+            alert("Error");
+        }
+    );
+}
+
+loadAndDisplay(images[current]);
+</pre></code>
+<button class="run">Run the code</button>
+
+<hr>
+
+<h2>Result</h2>
+<div id="result"></div>
+
+<script src="../jquery.js"></script>
+<script src="../deferredimage/deferredimage.js"></script>
+<script src="deferredtimer.js"></script>
+
+<script>
+    // Attach click handlers to "run" buttons, to execute demo example code blocks
+    jQuery('button.run')
+        .click(function(){
+            var codeElem = jQuery(this).prev("code.example"),
+                code = codeElem.text();
+
+            jQuery.globalEval(code);
+        });
+</script>
+</body>
+</html>

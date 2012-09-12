@@ -1,45 +1,101 @@
-function deferredImage(srcOrImg, doneCallbacks, failCallbacks){
+/*global window */
+
+var deferredImage = (function(jQuery){
     "use strict";
     
-    var deferred = jQuery.Deferred(doneCallbacks, failCallbacks),
-        img, src;
-        
-    if (typeof srcOrImg === "string"){
-        src = srcOrImg;
-        img = jQuery("<img/>", {src:src});
-    }
-    else {
-        img = jQuery(img);
-        src = img.attr("src");
-    }
+    var // Placeholder image src
+        blankSrc = "data:image/gif;base64,R0lGODlhAQABAIAAAPj8/wAAACwAAAAAAQABAAACAkQBADs=",
+        resolveDeferred,
     
-    deferred.image = {
-        elem: img,
-        src: src
+        // Handlers for image `onload` and `onerror` events
+        handlers = {
+            load: function(){
+                resolveDeferred(this, 1);
+            },
+            error: function(){
+                resolveDeferred(this);
+            }
+        };
+
+    // Resolve or reject the deferred on the $img element
+    resolveDeferred = function(img, success){
+        var $img = jQuery(img);
+        
+        // Resolve or reject the stored `deferred` object, passing the DOM element to callbacks
+        $img.data("deferred")[success ? "resolve" : "reject"](img);
+        
+        // Remove handlers and the stored `deferred` object
+        $img.off(handlers)
+            .removeData("deferred");
     };
     
-    // setTimeout to allow thread to continue manipulating the Deferred object
-    window.setTimeout(function(){
-        if (img[0].complete){
-            deferred.resolve(img, src);
-        }
-        else {
-            img.on("load", function onload(){
-                    // Remove all handlers
-                    img.unbind("load", onload);
-                    
-                    // Resolve Deferred
-                    deferred.resolve(img, src);
-                })
-                .on("error", function(){
-                    // Remove all handlers
-                    img.unbind("load", onload);
+    /////
+                
+    return function(image, doneCallbacks, failCallbacks){
+        var $img, img, promises, deferred, src, promise;
 
-                    // Reject Deferred
-                    deferred.reject(img, src);
-                })
+        // Image src
+        if (typeof image === "string"){
+            $img = jQuery("<img>", {src:image});
+            img = $img[0];
         }
-    }, 4);
-    
-    return deferred;
-}
+
+        // Array of images
+        else if (jQuery.isArray(image)){
+            promises = jQuery.map(image, function(singleImage){
+                return deferredImage(singleImage);
+            });
+
+            promise = jQuery.when.apply(jQuery, promises)
+                            .then(doneCallbacks, failCallbacks);
+                            
+            // Set `promise.promises` array of promise objects, each with an `img` property, and return
+            promise.promises = promises;
+            return promise;
+        }
+
+        // <img> DOM element or jQuery-wrapped element
+        else {
+            $img = jQuery(image);
+            img = $img[0];
+            
+            // Ensure that onload & onerror handlers fire again for a pre-existing <img> DOM node
+            // TODO: test cross-browser
+            src = img.src;
+            img.src = blankSrc; // set to blank image
+            img.src = src; // re-apply src attribute to reset handlers
+        }
+        
+        /////
+
+        // deferred & promise
+        deferred = jQuery.Deferred()
+            .then(doneCallbacks, failCallbacks);
+            
+        promise = deferred.promise();
+        
+        /////
+
+        // If already loaded, then resolve
+        if (img.complete){
+            deferred.resolve(img);
+        }
+
+        // Otherwise, add handlers and wait until load or error
+        else {
+            // Store `deferred` on the element and attach handlers
+            // Using singleton handlers in outer closure prevents need to add new functions to memory for each new image
+            $img.data("deferred", deferred)
+                .on(handlers);
+        }
+
+        /////
+        
+        // Set `promise.img` property
+        promise.img = img;
+        
+        return promise;
+    };
+}(window.jQuery));
+
+/*jslint white: true */

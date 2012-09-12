@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <meta name=viewport content="width=device-width,initial-scale=1.0">
+    <title>maps</title>
+</head>
+<body>
+    <div id="content"></div>
+    
+    <script type="text/tim" class="entry">
+        <h2>{{title}}</h2>
+        <div>{{content}}</div>
+    </script>
+    
+    <script src="https://www.google.com/jsapi?key=ABQIAAAAzy-FNVUDL8acFjau13-1OBR5vmDMjgQTfK2ZmREKQWlPDUVCsRS1dF3l0j6Y4NCEib8kQAapZXkK4A"></script>
+    
+    
+    <script src="../../tim/build/pkg/standard.min.js"></script>
+    
+    <!--<script src="../../tim/lib/pluggables.js"></script> -->
+    <script src="../feed/google-feed-api.js"></script>
+    
+    <script src="google-static-maps.js"></script>
+    
+    <script>
+        // EXAMPLE
+        
+        Feed.init()
+            .ready(function(){
+                var feed = new Feed(
+                    //"http://dharmafly.com/feed",
+                    //"http://api.flickr.com/services/feeds/geo/?id=54304913@N00&lang=en-us&format=rss_200",
+                    //"https://twitter.com/statuses/user_timeline/627103.rss",
+                    "http://api.flickr.com/services/feeds/geo/?lang=en-us&format=rss_200&tags=tree",
+
+                    function(result){
+                        var container = document.getElementById("content"),
+                            entries, i, len, entry, geo, mapUrl;
+
+                        console.log(result);
+
+                        if (!result.error) {
+                            entries = result.feed.entries;
+
+                            for (i=0, len=entries.length; i<len; i++){
+                                entry = entries[i];
+                                
+                                if (window.GoogleStaticMap){
+                                    geo = this.getGeoByPermalink(entry.link);
+
+                                    if (geo && typeof geo.lat !== null){
+                                        mapUrl = new GoogleStaticMap({lat:geo.lat, lng:geo.lng}).url();
+
+                                        var img = document.createElement("img");
+                                        img.src = mapUrl;
+                                        document.body.appendChild(img);
+                                    }
+                                }
+
+                                /////
+
+                                container.innerHTML += tim("entry", entry);
+                            }
+                        }
+                    },
+
+                    {num:10, historical:true, format:"json_xml"}
+                );
+            });
+    </script>
+</body>
+</html>
