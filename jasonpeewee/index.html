@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>Jason Peewee</title>
+        
+        <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    </head>
+    
+    <body>
+        <h1>Jason Peewee - a cache-friendly JSONP super-assistant</h1>
+
+        <p>Loading <a href="https://github.com/premasagar">Prem</a>'s bio <a href="https://api.github.com/users/premasagar">from the GitHub API</a> (refresh the page, and the data will be there waiting):</p>
+
+        <script src="lib/getscript.js"></script>
+        <script src="jasonpeewee.js"></script>
+
+        <script>
+            jasonpeewee.fetch(
+                'https://api.github.com/users/premasagar',
+                null, // (optional) options object to generate a query string
+                function(data){
+                    document.body.innerHTML += data.data.bio;
+                }
+            );
+        </script>
+    </body>
+</html>
