@@ -1,209 +1,263 @@
 (function(window){
-	'use strict';
+    'use strict';
 
-	var // SETTINGS
-		moduleName = 'jasonpeewee',
-		callbacksProperty = 'callbacks',
+    var moduleName = 'jasonpeewee',
+        encodeURIComponent = window.encodeURIComponent,
+        objectKeys = window.Object.keys,
+        document = window.document,
 
-		/////
+        // globally exposed container for JSONP callbacks that receive data
+        masterCallbacks = {},
 
-		// GLOBALS
-		encodeURIComponent = window.encodeURIComponent,
-		objectKeys = window.Object.keys,
+        // private container for individual callbacks to be passed data
+        privateCallbacks = {},
 
-		// container for global JSONP callbacks
-		jsonpcallbacks = {},
+        module, makeJSCompatibleName;
 
-		// cache the callback string using in URL query parameters
-		callbackQueryPrefix = 'callback=' + moduleName+ '.' +callbacksProperty+ '.',
+    /////
 
-		// other vars
-		makeJSCompatibleName;
+    // Convert any string so that can be used as the name for a JavaScript variable
+    makeJSCompatibleName = (function(){
+        var nonAlphaRegex = /[^\w\$]+/ig;
 
-	/////
+        return function(string){
+            return string ? string.replace(nonAlphaRegex, '_') : '_';
+        };
+    }());
 
-	// Convert any string so that can be used as the name for a JavaScript variable
-	makeJSCompatibleName = (function(){
-		var nonAlphaRegex = /[^\w\$]+/ig;
+    // Object.keys polyfill - returns an array of keys from an object
+    if (!objectKeys){
+        objectKeys = function(obj){
+            var keys = [],
+                key;
+            
+            for (key in obj){
+                if (obj.hasOwnProperty(key)){
+                    keys.push(key);
+                }
+            }
+            return keys;
+        };
+    }
 
-		return function(string){
-			return string ? string.replace(nonAlphaRegex, '_') : '_';
-		};
-	}());
+    // Returns an alphanumerically sorted array of keys from an object
+    function sortedObjectKeys(obj){
+        return objectKeys(obj).sort();
+    }
 
-	// Object.keys polyfill - returns an array of keys from an object
-	if (!objectKeys){
-	    objectKeys = function(obj){
-	        var keys = [],
-	            key;
-	        
-	        for (key in obj){
-	            if (obj.hasOwnProperty(key)){
-	                keys.push(key);
-	            }
-	        }
-	        return keys;
-	    };
-	}
+    // Accepts an options object and a specified key from the object
+    // Returns a URI-encoded query parameter, to be used within a query string
+    function encodeParameter(options, key){
+        var value = options[key];
+        return encodeURIComponent(key, value) + '=' + encodeURIComponent(value);
+    }
 
-	// Returns an alphanumerically sorted array of keys from an object
-	function sortedObjectKeys(obj){
-		return objectKeys(obj).sort();
-	}
+    // Accepts an options object and a boolean flag for whether the options should
+    // be alphanumerically sorted. Returns a URI-encoded query string
+    // Does not include a '?' prefix, to allow concatenation of multiple strings
+    function encodeURLQueryString(options, sort){
+        var queryString = '',
+            keys, key, i, len;
 
-	// Accepts an options object and a specified key from the object
-	// Returns a URI-encoded query parameter, to be used within a query string
-	function encodeParameter(options, key){
-		var value = options[key];
-		return encodeURIComponent(key, value) + '=' + encodeURIComponent(value);
-	}
+        if (sort === true){
+            keys = sortedObjectKeys(options);
+            for (i=0, len=keys.length; i<len; i++){
+                key = keys[i];
 
-	// Accepts an options object and a boolean flag for whether the options should
-	// be alphanumerically sorted. Returns a URI-encoded query string
-	// Does not include a '?' prefix, to allow concatenation of multiple strings
-	function encodeURLQueryString(options, sort){
-		var queryString = '',
-			keys, key, i, len;
+                if (i){
+                    queryString += '&';
+                }
+                queryString += encodeParameter(options, key);
+            }
+        }
 
-		if (sort === true){
-			keys = sortedObjectKeys(options);
-			for (i=0, len=keys.length; i<len; i++){
-				key = keys[i];
+        else {
+            for (key in options){
+                if (options.hasOwnProperty(key)){
+                    queryString += encodeParameter(options, key);
+                }
+            }
+        }
 
-				if (i){
-					queryString += '&';
-				}
-				queryString += encodeParameter(options, key);
-			}
-		}
+        return queryString;
+    }
 
-		else {
-			for (key in options){
-				if (options.hasOwnProperty(key)){
-					queryString += encodeParameter(options, key);
-				}
-			}
-		}
+    // Create global master callback and collection of private callbacks
+    function createCallbackCollection(callbackName){
+        // Create array of private callbacks to the url
+        var callbacks = privateCallbacks[callbackName] = [];
 
-		return queryString;
-	}
+        // Create global master callback, which receives data from the remote API
+        // and passes that data on to the private callbacks
+        masterCallbacks[callbackName] = function(data){
+            var callbacksLength = callbacks.length,
+                // Are further requests pending?
+                hasPendingRequests = callbacksLength > 1,
+                i;
 
-	function removeMasterCallbackIfEmpty(callbackName){
-		var masterCallback = jsonpcallbacks[callbackName];
+            // Call all callbacks with the data
+            for (i=0; i<callbacksLength; i++){
+                // Remove the first callback in the array, and call it
+                callbacks.shift()(data);
+            }
 
-		if (masterCallback && !masterCallback._callbacks.length){
-			delete jsonpcallbacks[callbackName];
-		}
-	}
+            // Free up memory by deleting the container for the request
+            // We check there are no further requests pending and that no callbacks
+            // were created since the start of the `for` loop
+            if (!hasPendingRequests){
+                removeCallbackCollection(callbackName);
+            }
+        };
+        
+        return callbacks;
+    }
 
-	// Create the callback that each JSONP response will call
-	// This 'master callback' will then call each registered internal callback
-	function createMasterCallback(callbackName){
-		var masterCallback = jsonpcallbacks[callbackName] = function(data){
-			var callbacks = masterCallback._callbacks,
-				callbacksLength = callbacks.length,
-				// Flag indicating further requests pending
-				hasPendingRequests = callbacksLength > 1,
-				i;
+    function removeCallbackCollection(callbackName){
+        // Only remove if there are no private callbacks remaining
+        if (!privateCallbacks[callbackName].length){
+            delete privateCallbacks[callbackName];
+            delete masterCallbacks[callbackName];
+        }
+    }
 
-			// Call all callbacks with the data
-			for (i=0; i<callbacksLength; i++){
-				// Remove the first callback in the array, and call it
-				callbacks.shift()(data);
-			}
+    // Register a private callback, called when a JSONP response calls a global, master callback
+    function registerCallback(callbackName, callback){
+        var callbacks = privateCallbacks[callbackName] || createCallbackCollection(callbackName);
 
-			// Free up memory by deleting the container for the request
-			// We check there are no further requests pending and that no callbacks
-			// were created since the start of the `for` loop
-			if (!hasPendingRequests){
-				removeMasterCallbackIfEmpty(callbackName);
-			}
-		};
+        callbacks.push(callback);
+        return callback;
+    }
 
-		masterCallback._callbacks = [];
-		return masterCallback;
-	}
+    function generateErrorObject(options, url){
+        return {
+            generator: moduleName,
+            error: 'JSONP request failed',
+            options: options,
+            url: url
+        };
+    }
 
-	// Register an internal callback, to be called after a JSONP response calls a master callback
-	function registerCallback(callbackName, callback){
-		var masterCallback = jsonpcallbacks[callbackName] || createMasterCallback(callbackName);
+    function generateErrorHandler(callbackName, options, url){
+        return function(success){
+            var callbacks, callback;
 
-		masterCallback._callbacks.push(callback);
-		return callback;
-	}
+            // JSONP request failed
+            if (!success){
+                // Remove the callback that led to the failed request
+                callbacks = privateCallbacks[callbackName];
 
-	function generateErrorObject(options, url){
-		return {
-			generator: moduleName,
-			error: 'JSONP request failed',
-			options: options,
-			url: url
-		};
-	}
+                if (callbacks){
+                    callback = callbacks.shift();
 
-	function generateErrorHandler(callbackName, options, url){
-		return function(success){
-			var container, callbacks, callback;
+                    if (callback){
+                        // Call the callback with an error object
+                        callback(generateErrorObject(options, url));
+                    }
 
-			if (!success){
-				// Remove the callback that led to the failed request
-				container = jsonpcallbacks[callbackName];
+                    // Free up memory by deleting container
+                    removeCallbackCollection(callbackName);
+                }
+            }
 
-				if (container){
-					callbacks = container._callbacks;
-					callback = callbacks.shift();
+            /*
+                NOTE: older IE's don't support `onerror` events when <script> elements fail to load; hence the callback may never fire with the error object, and the callback may not be removed from the container.
+            */
+        };
+    }
 
-					if (callback){
-						// Call the callback with an error object
-						callback(generateErrorObject(options, url));
-					}
+    // Load a script into a <script> element
+    // Modified from https://github.com/premasagar/cmd.js/tree/master/lib/getscript.js
+    function getscript(src, callback, options){
+        var head = document.head || document.getElementsByTagName('head')[0],
+            script = document.createElement('script'),
+            loaded = false;
+            
+        function finish(){
+            // Clean up circular references to prevent memory leaks in IE
+            script.onload = script.onreadystatechange = script.onerror = null;
+            
+            // Remove script element once loaded
+            head.removeChild(script); 
 
-					// Free up memory by deleting container
-					removeMasterCallbackIfEmpty(callbackName);
-				}
-			}
+            if (callback){
+                callback.call(window, loaded);
+            }
+        }
 
-			/*
-				NOTE: older IE's don't support `onerror` events when <script> elements fail to load; hence the callback may never fire with the error object, and the callback may not be removed from the container.
-				It would be worth adding a timeout, to ensure error handlers fire when the script simply takes too long to return.
-			*/
-		};
-	}
+        script.type = 'text/javascript';
+        script.charset = options && options.charset || 'utf-8';
+        script.src = src;
+        script.onload = script.onreadystatechange = function(){
+            var state = this.readyState;
+            
+            if (!loaded && (!state || state === 'complete' || state === 'loaded')){
+                loaded = true;
+                finish();
+            }
+        };
+        // NOTE: IE8 and below don't fire error events
+        script.onerror = finish;
 
-	// Make a JSONP request and set up the response handlers
-	function fetch(url, options, callback){
-		var queryString, callbackName, errorHandler;
+        head.appendChild(script);
+    }
 
-		queryString = options ?
-			encodeURLQueryString(options, true) + '&' : '';
+    // Make a JSONP request and set up the response handlers
+    function fetch(url, options, callback){
+        var callbackParameter, callbackName, errorHandler;
 
-		url += '?' + queryString;
-		callbackName = makeJSCompatibleName(url);
-		url += callbackQueryPrefix + callbackName;
+        // Determine which parameter the remote API requires for the callback name
+        // Usually, this is `callback` and sometimes `jsonpcallback`
+        // e.g. http://example.com?callback=foo
+        if (options && options.callbackParameter){
+            callbackParameter = options.callbackParameter;
+            // Delete from options object, so that it isn't included in the subsequent options handling
+            delete options.callbackParameter;
+        }
+        else {
+            callbackParameter = 'callback';
+        }
 
-		// TODO: check localStorage or other cache
-		// if no cache, make JSONP request
-		// Or trigger event, to allow third-party integration of caching
+        // Check if url already contains a query string
+        url += url.indexOf('?') === -1 ? '?' : '&';
 
-		registerCallback(callbackName, callback);
+        // Generate query string from options
+        url += options ? encodeURLQueryString(options, true) + '&' : '';
 
-		// Call getscript() and pass in a handler to determine if call failed
-		errorHandler = generateErrorHandler(callbackName, options, url);
-		getscript(url, errorHandler);
+        // Create callbackName from the URL (including options)
+        callbackName = makeJSCompatibleName(url);
 
-		return url;
-	}
+        // Add jsonp callback parameter
+        url += callbackParameter + '=' + module.path + '.callbacks.' + callbackName;
 
+        // TODO: check localStorage or other cache
+        // if no cache, make JSONP request
+        // Or trigger event, to allow third-party integration of caching
 
-	/////
+        registerCallback(callbackName, callback);
 
+        // Call getscript() and pass in a handler to determine if call failed
+        errorHandler = generateErrorHandler(callbackName, options, url);
+        getscript(url, errorHandler);
 
-	// Set up the global API for the module
-	window[moduleName] = {
-		fetch: fetch,
-		encodeURLQueryString: encodeURLQueryString
-	};
-	// Attach the container for JSONP callbacks
-	window[moduleName][callbacksProperty] = jsonpcallbacks;
+        return url;
+    }
 
-}(window));
+    /////
+
+    // Public API for the module
+    module = {
+        // If module is included within another module, then the `path` property
+        // must be updated to the new globally accessible module
+        path: moduleName,
+        callbacks: masterCallbacks,
+        fetch: fetch,
+        encodeURLQueryString: encodeURLQueryString
+    };
+
+    // NOTE: A GLOBAL MODULE
+    /*
+        The module must be globally accessible, in order for remote APIs to call the appropriate JSONP callback. It is possible to move the module to a different path, e.g. to myApp.jasonpeewee. If this is done, then the module's `path` property must be updated, e.g. myApp.jasonpeewee.path = 'myApp.jasonpeewee';
+    */
+    window[moduleName] = module;
+
+}(this));
