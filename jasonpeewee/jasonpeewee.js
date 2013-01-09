@@ -49,7 +49,7 @@
     // Returns a URI-encoded query parameter, to be used within a query string
     function encodeParameter(options, key){
         var value = options[key];
-        return encodeURIComponent(key, value) + '=' + encodeURIComponent(value);
+        return encodeURIComponent(key) + '=' + encodeURIComponent(value);
     }
 
     // Accepts an options object and a boolean flag for whether the options should
@@ -237,7 +237,7 @@
 
         // Call getscript() and pass in a handler to determine if call failed
         errorHandler = generateErrorHandler(callbackName, options, url);
-        getscript(url, errorHandler);
+        getscript(url, errorHandler, null);
 
         return url;
     }
@@ -248,10 +248,10 @@
     module = {
         // If module is included within another module, then the `path` property
         // must be updated to the new globally accessible module
-        path: moduleName,
-        callbacks: masterCallbacks,
-        fetch: fetch,
-        encodeURLQueryString: encodeURLQueryString
+        'path': moduleName,
+        'callbacks': masterCallbacks,
+        'fetch': fetch,
+        'encodeURLQueryString': encodeURLQueryString
     };
 
     // NOTE: A GLOBAL MODULE
