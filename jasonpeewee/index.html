@@ -16,13 +16,14 @@
     
     <body>
         <h1>Jason Peewee - a cache-friendly JSONP super-assistant</h1>
+        <p>No script dependencies. &lt; 800 bytes gzipped.</p>
 
         <h2>Example 1: GitHub bio</h2>
-        <p>Load <a href="https://github.com/premasagar">Prem</a>'s bio <a href="https://api.github.com/users/premasagar">from the GitHub API</a>. (NOTE: if you refresh the page, the data should be there waiting)</p>
+        <p>Load <a href="https://github.com/premasagar">Prem</a>'s bio <a href="https://api.github.com/users/premasagar">from the GitHub API</a> (and if you refresh the page, the data should already be cached for you):</p>
         <div class="results" id="github-results"></div>
 
         <h2>Example 2: Delicious latest bookmark</h2>
-        <p>Load <a href="www.delicious.com/premasagar">Prem</a>'s latest bookmarks <a href="http://feeds.delicious.com/v2/json/premasagar/?count=1">from the Delicious API</a>.</p>
+        <p>Load <a href="www.delicious.com/premasagar">Prem</a>'s latest bookmarks <a href="http://feeds.delicious.com/v2/json/premasagar/?count=1">from the Delicious API</a>:</p>
         <ul class="results" id="delicious-results"></ul>
 
         <script src="jasonpeewee.js"></script>
