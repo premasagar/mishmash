@@ -1,7 +1,9 @@
 (function(window){
     'use strict';
 
-    var moduleName = 'jasonpeewee',
+    var moduleName    = 'jasonpeewee',
+        callbacksName = '_jasonpeeweeFn',
+        define = window.define,
         encodeURIComponent = window.encodeURIComponent,
         objectKeys = window.Object.keys,
         document = window.document,
@@ -227,7 +229,7 @@
         callbackName = makeJSCompatibleName(url);
 
         // Add jsonp callback parameter
-        url += callbackParameter + '=' + module.path + '.callbacks.' + callbackName;
+        url += callbackParameter + '=' + module.path + '.' + callbackName;
 
         // TODO: check localStorage or other cache
         // if no cache, make JSONP request
@@ -248,16 +250,31 @@
     module = {
         // If module is included within another module, then the `path` property
         // must be updated to the new globally accessible module
-        'path': moduleName,
-        'callbacks': masterCallbacks,
+        'path': callbacksName,
         'fetch': fetch,
         'encodeURLQueryString': encodeURLQueryString
     };
 
-    // NOTE: A GLOBAL MODULE
     /*
-        The module must be globally accessible, in order for remote APIs to call the appropriate JSONP callback. It is possible to move the module to a different path, e.g. to myApp.jasonpeewee. If this is done, then the module's `path` property must be updated, e.g. myApp.jasonpeewee.path = 'myApp.jasonpeewee';
+        GLOBAL JSONP CALLBACKS
+
+        The collection of callbacks must be globally accessible, to capture the response from remote APIs. E.g:
+            http://example.com?callback=_jasonpeeweeFn.somecallback
+
+        The collection can be moved somewhere else that is globally accessible. If this is done, then the `jasonpeewee.path` property must be updated to the new location. E.g. jasonpeewee.path = 'myApp.callbacks';
     */
-    window[moduleName] = module;
+    window[callbacksName] = masterCallbacks;
+
+
+    // Module: use AMD if available
+    if (typeof define === 'function' && define.amd){
+        define([], function(){
+            return module;
+        });
+    }
+    // Otherwise, set global module
+    else {
+        window[moduleName] = module;
+    }
 
 }(this));
