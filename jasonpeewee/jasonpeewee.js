@@ -2,10 +2,10 @@
     'use strict';
 
     var callbacksName = '_jasonpeeweeFn',
-        define = window.define,
-        encodeURIComponent = window.encodeURIComponent,
-        objectKeys = window.Object.keys,
-        document = window.document,
+        define = window['define'],
+        encodeURIComponent = window['encodeURIComponent'],
+        objectKeys = window['Object']['keys'],
+        document = window['document'],
 
         // globally exposed container for JSONP callbacks that receive data
         masterCallbacks = {},
@@ -221,7 +221,7 @@
         callbackName = makeJSCompatibleName(url);
 
         // Add jsonp callback parameter
-        url += callbackParameter + '=' + jasonpeewee.path + '.' + callbackName;
+        url += callbackParameter + '=' + jasonpeewee['path'] + '.' + callbackName;
 
         // TODO: check localStorage or other cache
         // if no cache, make JSONP request
@@ -240,7 +240,7 @@
 
     // Set up jasonpeewee module
     // Use AMD if available
-    if (typeof define === 'function' && define.amd){
+    if (typeof define === 'function' && define['amd']){
         define([], function(){
             return jasonpeewee;
         });
