@@ -29,7 +29,7 @@
         <script src="jasonpeewee.js"></script>
         <script>
             // GitHub example
-            jasonpeewee.fetch(
+            jasonpeewee(
                 'https://api.github.com/users/premasagar',
                 null, // (optional) options object to generate a query string
                 function(data){
@@ -41,7 +41,7 @@
             );
 
             // Delicious example
-            jasonpeewee.fetch(
+            jasonpeewee(
                 'http://feeds.delicious.com/v2/json/premasagar/',
                 {count: 10},
                 function(data){

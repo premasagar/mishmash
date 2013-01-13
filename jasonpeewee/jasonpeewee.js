@@ -1,8 +1,7 @@
 (function(window){
     'use strict';
 
-    var moduleName    = 'jasonpeewee',
-        callbacksName = '_jasonpeeweeFn',
+    var callbacksName = '_jasonpeeweeFn',
         define = window.define,
         encodeURIComponent = window.encodeURIComponent,
         objectKeys = window.Object.keys,
@@ -14,7 +13,7 @@
         // private container for individual callbacks to be passed data
         privateCallbacks = {},
 
-        module, makeJSCompatibleName;
+        makeJSCompatibleName;
 
     /////
 
@@ -130,16 +129,15 @@
         return callback;
     }
 
-    function generateErrorObject(url, params, options){
+    function generateErrorObject(url){
         return {
-            generator: moduleName,
-            error: 'JSONP request failed',
-            params: params,
+            generator: 'jasonpeewee',
+            error: 'JSONP failed',
             url: url
         };
     }
 
-    function generateErrorHandler(callbackName, url, params, options){
+    function generateErrorHandler(callbackName, url){
         return function(success){
             var callbacks, callback;
 
@@ -153,7 +151,7 @@
 
                     if (callback){
                         // Call the callback with an error object
-                        callback(generateErrorObject(url, params, options));
+                        callback(generateErrorObject(url));
                     }
 
                     // Free up memory by deleting container
@@ -204,7 +202,7 @@
     }
 
     // Make a JSONP request and set up the response handlers
-    function fetch(url, params, callback, options){
+    function jasonpeewee(url, params, callback, options){
         var callbackParameter, callbackName, errorHandler;
 
         // Determine which parameter the remote API requires for the callback name
@@ -223,7 +221,7 @@
         callbackName = makeJSCompatibleName(url);
 
         // Add jsonp callback parameter
-        url += callbackParameter + '=' + module.path + '.' + callbackName;
+        url += callbackParameter + '=' + jasonpeewee.path + '.' + callbackName;
 
         // TODO: check localStorage or other cache
         // if no cache, make JSONP request
@@ -232,7 +230,7 @@
         registerCallback(callbackName, callback);
 
         // Call getscript() and pass in a handler to determine if call failed
-        errorHandler = generateErrorHandler(callbackName, url, params, options);
+        errorHandler = generateErrorHandler(callbackName, url);
         getscript(url, errorHandler, options);
 
         return url;
@@ -240,35 +238,30 @@
 
     /////
 
-    // Public API for the module
-    module = {
-        // If module is included within another module, then the `path` property
-        // must be updated to the new globally accessible module
-        'path': callbacksName,
-        'fetch': fetch,
-        'encodeURLQueryString': encodeURLQueryString
-    };
-
-    /*
-        GLOBAL JSONP CALLBACKS
-
-        The collection of callbacks must be globally accessible, to capture the response from remote APIs. E.g:
-            http://example.com?callback=_jasonpeeweeFn.somecallback
-
-        The collection can be moved somewhere else that is globally accessible. If this is done, then the `jasonpeewee.path` property must be updated to the new location. E.g. jasonpeewee.path = 'myApp.callbacks';
-    */
-    window[callbacksName] = masterCallbacks;
-
-
-    // Module: use AMD if available
+    // Set up jasonpeewee module
+    // Use AMD if available
     if (typeof define === 'function' && define.amd){
         define([], function(){
-            return module;
+            return jasonpeewee;
         });
     }
     // Otherwise, set global module
     else {
-        window[moduleName] = module;
+        window['jasonpeewee'] = jasonpeewee;
     }
+
+    /*
+        GLOBAL JSONP CALLBACKS
+
+        The collection of callbacks must be globally accessible, to capture the response from remote APIs. E.g the response from:
+            http://example.com?callback=_jasonpeeweeFn.somecallback123
+
+        The collection can be moved somewhere else that is globally accessible. If this is done, then the `jasonpeewee.path` property must be updated to the new location. E.g. jasonpeewee.path = 'myApp.callbacks';
+    */
+    window[callbacksName] = masterCallbacks;
+    jasonpeewee['path'] = callbacksName;
+
+    // Add useful methods
+    jasonpeewee['encodeURLQueryString'] = encodeURLQueryString;
 
 }(this));
