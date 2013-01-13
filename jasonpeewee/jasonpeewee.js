@@ -130,16 +130,16 @@
         return callback;
     }
 
-    function generateErrorObject(options, url){
+    function generateErrorObject(url, params, options){
         return {
             generator: moduleName,
             error: 'JSONP request failed',
-            options: options,
+            params: params,
             url: url
         };
     }
 
-    function generateErrorHandler(callbackName, options, url){
+    function generateErrorHandler(callbackName, url, params, options){
         return function(success){
             var callbacks, callback;
 
@@ -153,7 +153,7 @@
 
                     if (callback){
                         // Call the callback with an error object
-                        callback(generateErrorObject(options, url));
+                        callback(generateErrorObject(url, params, options));
                     }
 
                     // Free up memory by deleting container
@@ -204,28 +204,22 @@
     }
 
     // Make a JSONP request and set up the response handlers
-    function fetch(url, options, callback){
+    function fetch(url, params, callback, options){
         var callbackParameter, callbackName, errorHandler;
 
         // Determine which parameter the remote API requires for the callback name
         // Usually, this is `callback` and sometimes `jsonpcallback`
         // e.g. http://example.com?callback=foo
-        if (options && options.callbackParameter){
-            callbackParameter = options.callbackParameter;
-            // Delete from options object, so that it isn't included in the subsequent options handling
-            delete options.callbackParameter;
-        }
-        else {
-            callbackParameter = 'callback';
-        }
+        callbackParameter = options && options.callbackParameter ?
+            options.callbackParameter : 'callback';
 
         // Check if url already contains a query string
         url += url.indexOf('?') === -1 ? '?' : '&';
 
         // Generate query string from options
-        url += options ? encodeURLQueryString(options, true) + '&' : '';
+        url += params ? encodeURLQueryString(params, true) + '&' : '';
 
-        // Create callbackName from the URL (including options)
+        // Create callbackName from the URL (including params)
         callbackName = makeJSCompatibleName(url);
 
         // Add jsonp callback parameter
@@ -238,8 +232,8 @@
         registerCallback(callbackName, callback);
 
         // Call getscript() and pass in a handler to determine if call failed
-        errorHandler = generateErrorHandler(callbackName, options, url);
-        getscript(url, errorHandler, null);
+        errorHandler = generateErrorHandler(callbackName, url, params, options);
+        getscript(url, errorHandler, options);
 
         return url;
     }
