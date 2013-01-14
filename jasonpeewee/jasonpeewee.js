@@ -1,11 +1,25 @@
+/*!
+    Jason Peewee
+    A cache-friendly JSONP super-assistant
+
+    by Premasagar Rose <http://premasagar.com>,
+       Dharmafly <http://dharmafly.com>
+
+    Repo: <https://github.com/dharmafly/jasonpeewee>
+    MIT license: http://opensource.org/licenses/mit-license.php
+
+*//*jshint sub:true*/
 (function(window){
     'use strict';
 
-    var callbacksName = '_jasonpeeweeFn',
+    var // settings
+        callbacksName = '_jasonpeeweeFn',
+
+        // window properties
         define = window['define'],
+        document = window['document'],
         encodeURIComponent = window['encodeURIComponent'],
         objectKeys = window['Object']['keys'],
-        document = window['document'],
 
         // globally exposed container for JSONP callbacks that receive data
         masterCallbacks = {},
@@ -46,36 +60,36 @@
         return objectKeys(obj).sort();
     }
 
-    // Accepts an options object and a specified key from the object
+    // Accepts a params object and a specified key from the object
     // Returns a URI-encoded query parameter, to be used within a query string
-    function encodeParameter(options, key){
-        var value = options[key];
+    function encodeParameter(params, key){
+        var value = params[key];
         return encodeURIComponent(key) + '=' + encodeURIComponent(value);
     }
 
-    // Accepts an options object and a boolean flag for whether the options should
+    // Accepts a params object and a boolean flag for whether the params should
     // be alphanumerically sorted. Returns a URI-encoded query string
     // Does not include a '?' prefix, to allow concatenation of multiple strings
-    function encodeURLQueryString(options, sort){
+    function encodeURLQueryString(params, sort){
         var queryString = '',
             keys, key, i, len;
 
         if (sort === true){
-            keys = sortedObjectKeys(options);
+            keys = sortedObjectKeys(params);
             for (i=0, len=keys.length; i<len; i++){
                 key = keys[i];
 
                 if (i){
                     queryString += '&';
                 }
-                queryString += encodeParameter(options, key);
+                queryString += encodeParameter(params, key);
             }
         }
 
         else {
-            for (key in options){
-                if (options.hasOwnProperty(key)){
-                    queryString += encodeParameter(options, key);
+            for (key in params){
+                if (params.hasOwnProperty(key)){
+                    queryString += encodeParameter(params, key);
                 }
             }
         }
@@ -167,7 +181,7 @@
 
     // Load a script into a <script> element
     // Modified from https://github.com/premasagar/cmd.js/tree/master/lib/getscript.js
-    function getscript(src, callback, options){
+    function getscript(src, callback, settings){
         var head = document.head || document.getElementsByTagName('head')[0],
             script = document.createElement('script'),
             loaded = false;
@@ -185,7 +199,7 @@
         }
 
         script.type = 'text/javascript';
-        script.charset = options && options.charset || 'utf-8';
+        script.charset = settings && settings.charset || 'utf-8';
         script.src = src;
         script.onload = script.onreadystatechange = function(){
             var state = this.readyState;
@@ -202,19 +216,34 @@
     }
 
     // Make a JSONP request and set up the response handlers
-    function jasonpeewee(url, params, callback, options){
+    /*
+        - url: the endpoint URL for the remote API, e.g. http://example.com/things
+        - params: (optional) an object of query parameter values, e.g.
+            {page:6, sort:'alpha'} => http://example.com/things?page=6&sort=alpha
+        - callback: a function that is passed the API data, or an error object
+        - settings: (optional) an object of settings:
+            - callbackParameter: the name of the query parameter that the remote API uses for the name of the JSONP callback function. Usually, this is `callback` and sometimes `jsonpcallback`, e.g.
+                http://example.com?apicallback=mycallback
+            - charset: (most likely you'll never need this) the value `charset` attribute to be added to the script that loads the JSONP. The remote API server should set the correct charset in its headers. Where it does not, the default value of `utf-8` is used. Where UTF-8 is not the desired charset, you can provide your own here.
+    */
+    function jasonpeewee(url, params, callback, settings){
         var callbackParameter, callbackName, errorHandler;
+
+        // If `params` has not been passed
+        if (typeof params === 'function'){
+            callback = params;
+            params = null;
+        }
 
         // Determine which parameter the remote API requires for the callback name
         // Usually, this is `callback` and sometimes `jsonpcallback`
         // e.g. http://example.com?callback=foo
-        callbackParameter = options && options.callbackParameter ?
-            options.callbackParameter : 'callback';
+        callbackParameter = settings && settings.callbackParameter || 'callback';
 
         // Check if url already contains a query string
         url += url.indexOf('?') === -1 ? '?' : '&';
 
-        // Generate query string from options
+        // Generate query string from settings
         url += params ? encodeURLQueryString(params, true) + '&' : '';
 
         // Create callbackName from the URL (including params)
@@ -223,7 +252,7 @@
         // Add jsonp callback parameter
         url += callbackParameter + '=' + jasonpeewee['path'] + '.' + callbackName;
 
-        // TODO: check localStorage or other cache
+        // TODO?: check localStorage or other cache
         // if no cache, make JSONP request
         // Or trigger event, to allow third-party integration of caching
 
@@ -231,24 +260,12 @@
 
         // Call getscript() and pass in a handler to determine if call failed
         errorHandler = generateErrorHandler(callbackName, url);
-        getscript(url, errorHandler, options);
+        getscript(url, errorHandler, settings);
 
         return url;
     }
 
     /////
-
-    // Set up jasonpeewee module
-    // Use AMD if available
-    if (typeof define === 'function' && define['amd']){
-        define([], function(){
-            return jasonpeewee;
-        });
-    }
-    // Otherwise, set global module
-    else {
-        window['jasonpeewee'] = jasonpeewee;
-    }
 
     /*
         GLOBAL JSONP CALLBACKS
@@ -263,5 +280,21 @@
 
     // Add useful methods
     jasonpeewee['encodeURLQueryString'] = encodeURLQueryString;
+
+
+    /////
+
+
+    // Set up jasonpeewee module
+    // Use AMD if available
+    if (typeof define === 'function' && define['amd']){
+        define([], function(){
+            return jasonpeewee;
+        });
+    }
+    // Otherwise, set global module
+    else {
+        window['jasonpeewee'] = jasonpeewee;
+    }
 
 }(this));

@@ -31,7 +31,6 @@
             // GitHub example
             jasonpeewee(
                 'https://api.github.com/users/premasagar',
-                null, // (optional) options object to generate a query string
                 function(data){
                     var elem = document.getElementById('github-results'),
                         bio = data.data.bio;
