@@ -1,5 +1,5 @@
 var blank = (function(){
-	"use strict";
+	'use strict';
 	
 	var api;
 	
